@@ -74,7 +74,7 @@ public class FileUtil {
                 file.mkdir();
             }
         }
-        return new File(folderName(), path);
+        return new File(folderName(), path + ".apk");
     }
 
     public boolean exists(String path) {

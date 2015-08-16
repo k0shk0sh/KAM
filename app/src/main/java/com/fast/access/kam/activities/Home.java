@@ -1,5 +1,6 @@
 package com.fast.access.kam.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -147,18 +148,28 @@ public class Home extends AppCompatActivity implements IAppFetcher {
         public void onItemClicked(RecyclerView recyclerView, int position, View v) {
             AppsModel apps = adapter.getModelList().get(position);
             FileUtil fileUtil = new FileUtil();
-            File file = fileUtil.generateFile(apps.getFileName().getName());
-            if (file != null && !file.exists()) {
-                try {
-                    FileUtils.copyFile(apps.getFileName(), file);
-                    Snackbar.make(mainContent, apps.getName() + " " + apps.getFileName(), Snackbar.LENGTH_INDEFINITE).show();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Snackbar.make(mainContent, e.getMessage(), Snackbar.LENGTH_INDEFINITE).show();
-                }
+            File file = fileUtil.generateFile(apps.getName());
+            try {
+                FileUtils.copyFile(apps.getFileName(), file);
+                showMessage("File extracted to KAM/" + apps.getName() + ".apk");
+            } catch (IOException e) {
+                e.printStackTrace();
+                showMessage(e.getMessage() != null ? e.getMessage() : "Error Extracting App");
             }
         }
     };
+
+    private void showMessage(String msg) {
+        final Snackbar snackbar = Snackbar.make(mainContent, msg, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setActionTextColor(Color.RED).show();
+        snackbar.setAction("Close", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+    }
 
     @Override
     public void onStartFetching() {
