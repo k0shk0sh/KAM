@@ -1,7 +1,5 @@
 package com.fast.access.kam.activities;
 
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -24,6 +22,8 @@ import com.fast.access.kam.R;
 import com.fast.access.kam.global.adapter.AppsAdapter;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.model.AppsModel;
+import com.fast.access.kam.global.tasks.ApplicationFetcher;
+import com.fast.access.kam.global.tasks.impl.IAppFetcher;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
 import com.fast.access.kam.widget.impl.RecyclerScrollListener;
 
@@ -37,7 +37,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements IAppFetcher {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbar)
@@ -85,7 +85,7 @@ public class Home extends AppCompatActivity {
             }
         });
         OnItemClickListener.addTo(recycler).setOnItemClickListener(onClick);
-        whateer();
+        new ApplicationFetcher(this, this).execute();
     }
 
     @Override
@@ -114,22 +114,6 @@ public class Home extends AppCompatActivity {
                         return true;
                     }
                 });
-    }
-
-    private void whateer() {
-        List<AppsModel> appsModels = new ArrayList<>();
-        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        final List<ResolveInfo> pkgAppsList = getPackageManager().queryIntentActivities(mainIntent, 0);
-        for (ResolveInfo object : pkgAppsList) {
-            AppsModel model = new AppsModel();
-            File file = new File(object.activityInfo.applicationInfo.publicSourceDir);
-            model.setFileName(file);
-            model.setName(object.loadLabel(getPackageManager()).toString());
-            model.setDrawable(object.loadIcon(getPackageManager()));
-            appsModels.add(model);
-        }
-        adapter.insert(appsModels);
     }
 
     private RecyclerScrollListener onScroll = new RecyclerScrollListener() {
@@ -161,4 +145,23 @@ public class Home extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public void onStartFetching() {
+
+    }
+
+    @Override
+    public void onUpdate(AppsModel appsModel) {
+        if (appsModel != null) {
+            if (adapter != null) {
+                adapter.insert(appsModel);
+            }
+        }
+    }
+
+    @Override
+    public void onFinish(List<AppsModel> appsModels) {
+        // refresh adapter?
+    }
 }

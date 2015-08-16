@@ -70,6 +70,15 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
+    public void insert(AppsModel model) {
+        modelList.add(model);
+        if (getItemCount() < 2) {
+            notifyItemInserted(modelList.size());
+        } else {
+            notifyItemInserted(modelList.size() - 1);
+        }
+    }
+
 
     static class AppsHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.appIcon)
