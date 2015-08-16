@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".Home">
     <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/ic_dashboard"
-        android:title="Display"
+        android:id="@+id/change_span"
+        android:icon="@drawable/ic_list"
+        android:title="Change List Display"
         app:showAsAction="always"/>
 </menu>

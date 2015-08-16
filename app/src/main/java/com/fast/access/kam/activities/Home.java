@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.adapter.AppsAdapter;
@@ -36,6 +37,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class Home extends AppCompatActivity implements IAppFetcher {
     @Bind(R.id.toolbar)
@@ -52,8 +54,15 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     NavigationView navigationView;
     @Bind(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
+    @Bind(R.id.progress)
+    ProgressBar progress;
     private GridLayoutManager manager;
     private AppsAdapter adapter;
+
+    @OnClick(R.id.fab)
+    public void onRefresh() {
+        new ApplicationFetcher(this, this).execute();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,13 +86,6 @@ public class Home extends AppCompatActivity implements IAppFetcher {
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         OnItemClickListener.addTo(recycler).setOnItemClickListener(onClick);
         new ApplicationFetcher(this, this).execute();
     }
@@ -99,6 +101,18 @@ public class Home extends AppCompatActivity implements IAppFetcher {
         switch (item.getItemId()) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            case R.id.change_span:
+                if (manager != null) {
+                    if (manager.getSpanCount() == 2) {
+                        manager.setSpanCount(1);
+                        item.setIcon(R.drawable.ic_list);
+                    } else {
+                        item.setIcon(R.drawable.ic_grid);
+                        manager.setSpanCount(2);
+                    }
+                    manager.requestLayout(); // must be called otherwise, exception!!!
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -148,7 +162,8 @@ public class Home extends AppCompatActivity implements IAppFetcher {
 
     @Override
     public void onStartFetching() {
-
+        progress.setVisibility(View.VISIBLE);
+        fab.setEnabled(false);
     }
 
     @Override
@@ -162,6 +177,7 @@ public class Home extends AppCompatActivity implements IAppFetcher {
 
     @Override
     public void onFinish(List<AppsModel> appsModels) {
-        // refresh adapter?
+        progress.setVisibility(View.GONE);
+        fab.setEnabled(true);
     }
 }

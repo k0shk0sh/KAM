@@ -72,7 +72,7 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void insert(AppsModel model) {
         modelList.add(model);
-        if (getItemCount() < 2) {
+        if (getItemCount() < 2) { // we always going to have the first view as an empty after each restart of app.
             notifyItemInserted(modelList.size());
         } else {
             notifyItemInserted(modelList.size() - 1);
