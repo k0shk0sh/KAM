@@ -2,9 +2,9 @@ package com.fast.access.kam.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -27,7 +27,6 @@ import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.tasks.ApplicationFetcher;
 import com.fast.access.kam.global.tasks.impl.IAppFetcher;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
-import com.fast.access.kam.widget.impl.RecyclerScrollListener;
 
 import org.apache.commons.io.FileUtils;
 
@@ -38,7 +37,6 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class Home extends AppCompatActivity implements IAppFetcher {
     @Bind(R.id.toolbar)
@@ -47,8 +45,6 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     AppBarLayout appbar;
     @Bind(R.id.recycler)
     RecyclerView recycler;
-    @Bind(R.id.fab)
-    FloatingActionButton fab;
     @Bind(R.id.main_content)
     CoordinatorLayout mainContent;
     @Bind(R.id.nav_view)
@@ -59,10 +55,14 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     ProgressBar progress;
     private GridLayoutManager manager;
     private AppsAdapter adapter;
+    private final String APP_LIST = "AppsList";
 
-    @OnClick(R.id.fab)
-    public void onRefresh() {
-        new ApplicationFetcher(this, this).execute();
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (adapter != null && adapter.getModelList() != null && adapter.getModelList().size() != 0) {
+            outState.putParcelableArrayList(APP_LIST, (ArrayList<? extends Parcelable>) adapter.getModelList());
+        }
     }
 
     @Override
@@ -74,7 +74,6 @@ public class Home extends AppCompatActivity implements IAppFetcher {
         recycler.setItemAnimator(new DefaultItemAnimator());
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(manager);
-        recycler.addOnScrollListener(onScroll);
         adapter = new AppsAdapter(new ArrayList<AppsModel>());
         recycler.setAdapter(adapter);
         setSupportActionBar(toolbar);
@@ -88,7 +87,16 @@ public class Home extends AppCompatActivity implements IAppFetcher {
             setupDrawerContent(navigationView);
         }
         OnItemClickListener.addTo(recycler).setOnItemClickListener(onClick);
-        new ApplicationFetcher(this, this).execute();
+        if (savedInstanceState == null) {
+            new ApplicationFetcher(this, this).execute();
+        } else {
+            if (savedInstanceState.getParcelableArrayList(APP_LIST) != null) {
+                List<AppsModel> models = savedInstanceState.getParcelableArrayList(APP_LIST);
+                adapter.insert(models);
+            } else {
+                new ApplicationFetcher(this, this).execute();
+            }
+        }
     }
 
     @Override
@@ -131,17 +139,6 @@ public class Home extends AppCompatActivity implements IAppFetcher {
                 });
     }
 
-    private RecyclerScrollListener onScroll = new RecyclerScrollListener() {
-        @Override
-        public void onHide() {
-            if (fab != null) fab.hide();
-        }
-
-        @Override
-        public void onShow() {
-            if (fab != null) fab.show();
-        }
-    };
 
     private OnItemClickListener.onClick onClick = new OnItemClickListener.onClick() {
         @Override
@@ -150,7 +147,7 @@ public class Home extends AppCompatActivity implements IAppFetcher {
             FileUtil fileUtil = new FileUtil();
             File file = fileUtil.generateFile(apps.getName());
             try {
-                FileUtils.copyFile(apps.getFileName(), file);
+                FileUtils.copyFile(apps.getFile(), file);
                 showMessage("File extracted to KAM/" + apps.getName() + ".apk");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -174,7 +171,6 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     @Override
     public void onStartFetching() {
         progress.setVisibility(View.VISIBLE);
-        fab.setEnabled(false);
     }
 
     @Override
@@ -189,6 +185,5 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     @Override
     public void onFinish(List<AppsModel> appsModels) {
         progress.setVisibility(View.GONE);
-        fab.setEnabled(true);
     }
 }

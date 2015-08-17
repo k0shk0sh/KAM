@@ -35,14 +35,4 @@
         <include layout="@layout/progress_layout"/>
     </FrameLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_refresh"
-        app:layout_scrollFlags="scroll"
-        app:rippleColor="@color/primary"/>
-
 </android.support.design.widget.CoordinatorLayout>

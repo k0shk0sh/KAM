@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.StrictMode;
 
 import com.fast.access.kam.activities.Home;
+import com.fast.access.kam.global.helper.BitmapCache;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
@@ -13,6 +14,7 @@ import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 public class AppController extends Application {
 
     private static AppController controller;
+    private BitmapCache bitmapCache;
 
     @Override
     public void onCreate() {
@@ -28,5 +30,12 @@ public class AppController extends Application {
 
     public static AppController getController() {
         return controller;
+    }
+
+    public BitmapCache getBitmapCache() {
+        if (bitmapCache == null) {
+            bitmapCache = new BitmapCache();
+        }
+        return bitmapCache;
     }
 }

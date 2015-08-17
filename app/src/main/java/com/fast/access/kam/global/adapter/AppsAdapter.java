@@ -1,5 +1,6 @@
 package com.fast.access.kam.global.adapter;
 
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,8 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
+import com.fast.access.kam.global.helper.BitmapCache;
 import com.fast.access.kam.global.model.AppsModel;
+import com.fast.access.kam.global.tasks.BitmapFetcher;
 import com.fast.access.kam.widget.EmptyHolder;
 
 import java.util.List;
@@ -26,9 +30,11 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private List<AppsModel> modelList;
+    private BitmapCache bitmapCache;
 
     public AppsAdapter(List<AppsModel> modelList) {
         this.modelList = modelList;
+        this.bitmapCache = AppController.getController().getBitmapCache();
     }
 
     @Override
@@ -46,8 +52,17 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) != EmptyHolder.EMPTY_TYPE) {
             AppsHolder h = (AppsHolder) holder;
-            h.appIcon.setImageDrawable(modelList.get(position).getDrawable());
-            h.appName.setText(modelList.get(position).getName());
+            AppsModel app = modelList.get(position);
+            if (app != null) {
+                h.appName.setText(app.getName());
+                Drawable bitmap = bitmapCache.getBitmap(app.getPackageName());
+                if (bitmap != null) {
+                    h.appIcon.setImageDrawable(bitmap);
+                } else {
+                    h.appIcon.setImageResource(R.drawable.ic_not_found);
+                    new BitmapFetcher(h.itemView.getContext(), h.appIcon, bitmapCache).execute(app.getPackageName());
+                }
+            }
         }
     }
 
@@ -79,6 +94,10 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    public void clearAll() {
+        modelList.clear();
+        notifyDataSetChanged();
+    }
 
     static class AppsHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.appIcon)

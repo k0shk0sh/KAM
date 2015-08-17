@@ -56,9 +56,9 @@ public class ApplicationFetcher extends AsyncTask<AppsModel, AppsModel, List<App
         for (ResolveInfo resolveInfo : list) {
             AppsModel model = new AppsModel();
             File file = new File(resolveInfo.activityInfo.applicationInfo.publicSourceDir);
-            model.setFileName(file);
+            model.setFile(file);
             model.setName(resolveInfo.loadLabel(pm).toString());
-            model.setDrawable(resolveInfo.loadIcon(pm));
+            model.setPackageName(resolveInfo.activityInfo.packageName);
             publishProgress(model);
             appsModels.add(model);
         }
