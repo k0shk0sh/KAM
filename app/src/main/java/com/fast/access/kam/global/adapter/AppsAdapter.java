@@ -5,6 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,7 +17,9 @@ import com.fast.access.kam.global.helper.BitmapCache;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.tasks.BitmapFetcher;
 import com.fast.access.kam.widget.EmptyHolder;
+import com.fast.access.kam.widget.impl.OnItemClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -23,7 +28,9 @@ import butterknife.ButterKnife;
 /**
  * Created by Kosh on 8/16/2015. copyrights are reserved
  */
-public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
+
+    private List<AppsModel> searchList;
 
     public List<AppsModel> getModelList() {
         return modelList;
@@ -31,9 +38,11 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<AppsModel> modelList;
     private BitmapCache bitmapCache;
+    private OnItemClickListener onClick;
 
-    public AppsAdapter(List<AppsModel> modelList) {
+    public AppsAdapter(OnItemClickListener onClick, List<AppsModel> modelList) {
         this.modelList = modelList;
+        this.onClick = onClick;
         this.bitmapCache = AppController.getController().getBitmapCache();
     }
 
@@ -49,7 +58,7 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (getItemViewType(position) != EmptyHolder.EMPTY_TYPE) {
             AppsHolder h = (AppsHolder) holder;
             AppsModel app = modelList.get(position);
@@ -62,6 +71,24 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     h.appIcon.setImageResource(R.drawable.ic_not_found);
                     new BitmapFetcher(h.itemView.getContext(), h.appIcon, bitmapCache).execute(app.getPackageName());
                 }
+                h.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClick.onItemClickListener(v, position);
+                    }
+                });
+                h.shareBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClick.onItemClickListener(v, position);
+                    }
+                });
+                h.extractBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onClick.onItemClickListener(v, position);
+                    }
+                });
             }
         }
     }
@@ -99,11 +126,47 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                final FilterResults oReturn = new FilterResults();
+                final List<AppsModel> results = new ArrayList<>();
+                if (searchList == null) {
+                    searchList = modelList;
+                }
+                if (charSequence != null) {
+                    if (searchList != null && searchList.size() > 0) {
+                        for (final AppsModel appInfo : searchList) {
+                            if (appInfo.getName().toLowerCase().contains(charSequence.toString())) {
+                                results.add(appInfo);
+                            }
+                        }
+                    }
+                    oReturn.values = results;
+                    oReturn.count = results.size();
+                }
+                return oReturn;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                modelList = (List<AppsModel>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
+
     static class AppsHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.appIcon)
         ImageView appIcon;
         @Bind(R.id.appName)
         TextView appName;
+        @Bind(R.id.extractBtn)
+        ImageButton extractBtn;
+        @Bind(R.id.shareBtn)
+        ImageButton shareBtn;
 
         AppsHolder(View view) {
             super(view);

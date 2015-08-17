@@ -1,5 +1,7 @@
 package com.fast.access.kam.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -8,12 +10,14 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,7 +42,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class Home extends AppCompatActivity implements IAppFetcher {
+public class Home extends AppCompatActivity implements IAppFetcher, SearchView.OnQueryTextListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbar)
@@ -56,6 +60,8 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     private GridLayoutManager manager;
     private AppsAdapter adapter;
     private final String APP_LIST = "AppsList";
+    private MenuItem searchItem;
+    private SearchView searchView;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -74,7 +80,7 @@ public class Home extends AppCompatActivity implements IAppFetcher {
         recycler.setItemAnimator(new DefaultItemAnimator());
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(manager);
-        adapter = new AppsAdapter(new ArrayList<AppsModel>());
+        adapter = new AppsAdapter(onClick, new ArrayList<AppsModel>());
         recycler.setAdapter(adapter);
         setSupportActionBar(toolbar);
         final ActionBar ab = getSupportActionBar();
@@ -86,7 +92,6 @@ public class Home extends AppCompatActivity implements IAppFetcher {
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
-        OnItemClickListener.addTo(recycler).setOnItemClickListener(onClick);
         if (savedInstanceState == null) {
             new ApplicationFetcher(this, this).execute();
         } else {
@@ -102,6 +107,11 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(this);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return true;
     }
 
@@ -110,18 +120,6 @@ public class Home extends AppCompatActivity implements IAppFetcher {
         switch (item.getItemId()) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
-            case R.id.change_span:
-                if (manager != null) {
-                    if (manager.getSpanCount() == 2) {
-                        manager.setSpanCount(1);
-                        item.setIcon(R.drawable.ic_list);
-                    } else {
-                        item.setIcon(R.drawable.ic_grid);
-                        manager.setSpanCount(2);
-                    }
-                    manager.requestLayout(); // must be called otherwise, exception!!!
-                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -132,26 +130,46 @@ public class Home extends AppCompatActivity implements IAppFetcher {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
+//                        menuItem.setChecked(true);
                         mDrawerLayout.closeDrawers();
+                        switch (menuItem.getItemId()) {
+                            case R.id.change_span:
+                                if (manager != null) {
+                                    if (manager.getSpanCount() == 2) {
+                                        manager.setSpanCount(1);
+                                        menuItem.setIcon(R.drawable.ic_list);
+                                    } else {
+                                        menuItem.setIcon(R.drawable.ic_grid);
+                                        manager.setSpanCount(2);
+                                    }
+                                    manager.requestLayout(); // must be called otherwise, exception!!!
+                                }
+                                return true;
+                        }
                         return true;
                     }
                 });
     }
 
 
-    private OnItemClickListener.onClick onClick = new OnItemClickListener.onClick() {
+    private OnItemClickListener onClick = new OnItemClickListener() {
         @Override
-        public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-            AppsModel apps = adapter.getModelList().get(position);
-            FileUtil fileUtil = new FileUtil();
-            File file = fileUtil.generateFile(apps.getName());
-            try {
-                FileUtils.copyFile(apps.getFile(), file);
-                showMessage("File extracted to KAM/" + apps.getName() + ".apk");
-            } catch (IOException e) {
-                e.printStackTrace();
-                showMessage(e.getMessage() != null ? e.getMessage() : "Error Extracting App");
+        public void onItemClickListener(View v, int position) {
+            if (v.getId() == R.id.extractBtn) {
+                AppsModel apps = adapter.getModelList().get(position);
+                FileUtil fileUtil = new FileUtil();
+                File file = fileUtil.generateFile(apps.getName());
+                try {
+                    FileUtils.copyFile(apps.getFile(), file);
+                    showMessage("File extracted to KAM/" + apps.getName() + ".apk");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showMessage(e.getMessage() != null ? e.getMessage() : "Error Extracting App");
+                }
+            } else if (v.getId() == R.id.shareBtn) {
+
+            } else {
+
             }
         }
     };
@@ -185,5 +203,21 @@ public class Home extends AppCompatActivity implements IAppFetcher {
     @Override
     public void onFinish(List<AppsModel> appsModels) {
         progress.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        if (newText.isEmpty()) {
+            adapter.getFilter().filter("");
+        } else {
+            adapter.getFilter().filter(newText.toLowerCase());
+        }
+
+        return false;
     }
 }

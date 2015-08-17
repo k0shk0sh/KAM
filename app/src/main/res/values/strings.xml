@@ -3,4 +3,8 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="extract">Extract</string>
+    <string name="share">Share</string>
+    <string name="search">Search</string>
+    <string name="key_word">Key In Keyword</string>
 </resources>

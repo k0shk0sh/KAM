@@ -5,6 +5,7 @@ import android.os.StrictMode;
 
 import com.fast.access.kam.activities.Home;
 import com.fast.access.kam.global.helper.BitmapCache;
+import com.squareup.leakcanary.LeakCanary;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
@@ -24,6 +25,7 @@ public class AppController extends Application {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyDialog().build());
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
+        LeakCanary.install(this);
         CustomActivityOnCrash.setRestartActivityClass(Home.class);
         CustomActivityOnCrash.install(this);
     }
