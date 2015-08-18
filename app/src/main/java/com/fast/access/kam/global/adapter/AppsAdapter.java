@@ -12,7 +12,6 @@ import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppsModel;
-import com.fast.access.kam.widget.EmptyHolder;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.download.ImageDownloader;
@@ -46,47 +45,33 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v;
-        if (viewType == EmptyHolder.EMPTY_TYPE) {
-            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.empty_view, parent, false);
-            return new EmptyHolder(v);
-        }
-        v = LayoutInflater.from(parent.getContext()).inflate(R.layout.apps_list_items, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.apps_list_items, parent, false);
         return new AppsHolder(v);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        if (getItemViewType(position) != EmptyHolder.EMPTY_TYPE) {
-            AppsHolder h = (AppsHolder) holder;
-            AppsModel app = modelList.get(position);
-            if (app != null) {
-                h.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onClick.onItemClickListener(v, position);
-                    }
-                });
-                if (app.getImageLocation() != null)
-                    imageLoader.displayImage(ImageDownloader.Scheme.FILE.wrap(app.getImageLocation()), h.appIcon);
-                else
-                    h.appIcon.setImageDrawable(AppHelper.getDrawable(h.appIcon.getContext(), app.getPackageName()));
-            }
+        AppsHolder h = (AppsHolder) holder;
+        AppsModel app = modelList.get(position);
+        if (app != null) {
+            h.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClick.onItemClickListener(v, position);
+                }
+            });
+            if (app.getImageLocation() != null)
+                imageLoader.displayImage(ImageDownloader.Scheme.FILE.wrap(app.getImageLocation()), h.appIcon);
+            else
+                h.appIcon.setImageDrawable(AppHelper.getDrawable(h.itemView.getContext(), app.getPackageName()));
         }
     }
 
     @Override
     public int getItemCount() {
-        return modelList == null || modelList.size() == 0 ? 1 : modelList.size();
+        return modelList.size();
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if (modelList == null || modelList.size() == 0) {
-            return EmptyHolder.EMPTY_TYPE;
-        }
-        return super.getItemViewType(position);
-    }
 
     public void insert(List<AppsModel> apps) {
         modelList.clear();

@@ -141,16 +141,6 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
             ActivityOptionsCompat options = ActivityOptionsCompat.
                     makeSceneTransitionAnimation(Home.this, v, "appIcon");
             startActivityForResult(intent, APP_RESULT, options.toBundle());
-//            AppsModel apps = adapter.getModelList().get(position);
-//            FileUtil fileUtil = new FileUtil();
-//            File file = fileUtil.generateFile(apps.getName());
-//            try {
-//                FileUtils.copyFile(apps.getFile(), file);
-//                showMessage("File extracted to KAM/" + apps.getName() + ".apk");
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                showMessage(e.getMessage() != null ? e.getMessage() : "Error Extracting App");
-//            }
         }
     };
 

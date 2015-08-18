@@ -83,5 +83,56 @@
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 
+    <com.bowyer.app.fabtoolbar.FabToolbar
+        android:id="@+id/fabtoolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:tb_color="@color/primary"
+        app:tb_container_gravity="center">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:padding="10dp"
+                android:src="@drawable/ic_delete"/>
+
+            <ImageButton
+                android:id="@+id/extract"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:padding="10dp"
+                android:src="@drawable/ic_extract"/>
+
+            <ImageButton
+                android:id="@+id/share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:padding="10dp"
+                android:src="@drawable/ic_share"/>
+
+        </LinearLayout>
+
+    </com.bowyer.app.fabtoolbar.FabToolbar>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/ic_add"
+        app:fabSize="normal"
+        app:rippleColor="@color/primary"/>
 </android.support.design.widget.CoordinatorLayout>
