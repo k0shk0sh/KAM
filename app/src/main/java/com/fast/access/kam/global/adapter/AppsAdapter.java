@@ -1,23 +1,21 @@
 package com.fast.access.kam.global.adapter;
 
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
-import com.fast.access.kam.global.helper.BitmapCache;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppsModel;
-import com.fast.access.kam.global.tasks.BitmapFetcher;
 import com.fast.access.kam.widget.EmptyHolder;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.download.ImageDownloader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,13 +35,13 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
     private List<AppsModel> modelList;
-    private BitmapCache bitmapCache;
     private OnItemClickListener onClick;
+    private ImageLoader imageLoader;
 
     public AppsAdapter(OnItemClickListener onClick, List<AppsModel> modelList) {
         this.modelList = modelList;
         this.onClick = onClick;
-        this.bitmapCache = AppController.getController().getBitmapCache();
+        this.imageLoader = AppController.getController().getImageLoader();
     }
 
     @Override
@@ -63,32 +61,16 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             AppsHolder h = (AppsHolder) holder;
             AppsModel app = modelList.get(position);
             if (app != null) {
-                h.appName.setText(app.getName());
-                Drawable bitmap = bitmapCache.getBitmap(app.getPackageName());
-                if (bitmap != null) {
-                    h.appIcon.setImageDrawable(bitmap);
-                } else {
-                    h.appIcon.setImageResource(R.drawable.ic_not_found);
-                    new BitmapFetcher(h.itemView.getContext(), h.appIcon, bitmapCache).execute(app.getPackageName());
-                }
                 h.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         onClick.onItemClickListener(v, position);
                     }
                 });
-                h.shareBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onClick.onItemClickListener(v, position);
-                    }
-                });
-                h.extractBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onClick.onItemClickListener(v, position);
-                    }
-                });
+                if (app.getImageLocation() != null)
+                    imageLoader.displayImage(ImageDownloader.Scheme.FILE.wrap(app.getImageLocation()), h.appIcon);
+                else
+                    h.appIcon.setImageDrawable(AppHelper.getDrawable(h.appIcon.getContext(), app.getPackageName()));
             }
         }
     }
@@ -128,45 +110,41 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     @Override
     public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence charSequence) {
-                final FilterResults oReturn = new FilterResults();
-                final List<AppsModel> results = new ArrayList<>();
-                if (searchList == null) {
-                    searchList = modelList;
-                }
-                if (charSequence != null) {
-                    if (searchList != null && searchList.size() > 0) {
-                        for (final AppsModel appInfo : searchList) {
-                            if (appInfo.getName().toLowerCase().contains(charSequence.toString())) {
-                                results.add(appInfo);
-                            }
+        return filter;
+    }
+
+    private Filter filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            final FilterResults oReturn = new FilterResults();
+            final List<AppsModel> results = new ArrayList<>();
+            if (searchList == null) {
+                searchList = modelList;
+            }
+            if (charSequence != null) {
+                if (searchList != null && searchList.size() > 0) {
+                    for (final AppsModel appInfo : searchList) {
+                        if (appInfo.getName().toLowerCase().contains(charSequence.toString())) {
+                            results.add(appInfo);
                         }
                     }
-                    oReturn.values = results;
-                    oReturn.count = results.size();
                 }
-                return oReturn;
+                oReturn.values = results;
+                oReturn.count = results.size();
             }
+            return oReturn;
+        }
 
-            @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                modelList = (List<AppsModel>) filterResults.values;
-                notifyDataSetChanged();
-            }
-        };
-    }
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+            modelList = (List<AppsModel>) filterResults.values;
+            notifyDataSetChanged();
+        }
+    };
 
     static class AppsHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.appIcon)
         ImageView appIcon;
-        @Bind(R.id.appName)
-        TextView appName;
-        @Bind(R.id.extractBtn)
-        ImageButton extractBtn;
-        @Bind(R.id.shareBtn)
-        ImageButton shareBtn;
 
         AppsHolder(View view) {
             super(view);

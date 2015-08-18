@@ -14,6 +14,7 @@ public class AppsModel implements Parcelable {
     private String packageName;
     private File file;
     private int icon;
+    private String imageLocation;
 
     public String getName() {
         return name;
@@ -79,4 +80,12 @@ public class AppsModel implements Parcelable {
             return new AppsModel[size];
         }
     };
+
+    public String getImageLocation() {
+        return imageLocation;
+    }
+
+    public void setImageLocation(String imageLocation) {
+        this.imageLocation = imageLocation;
+    }
 }

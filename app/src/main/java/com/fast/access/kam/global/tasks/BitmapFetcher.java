@@ -1,7 +1,7 @@
 package com.fast.access.kam.global.tasks;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
@@ -11,8 +11,7 @@ import com.fast.access.kam.global.helper.BitmapCache;
 /**
  * Created by Kosh on 8/17/2015. copyrights are reserved
  */
-public class BitmapFetcher extends AsyncTask<String, String, Drawable> {
-
+public class BitmapFetcher extends AsyncTask<String, String, Bitmap> {
     private ImageView appIcon;
     private BitmapCache bitmapCache;
     private Context context;
@@ -25,16 +24,16 @@ public class BitmapFetcher extends AsyncTask<String, String, Drawable> {
     }
 
     @Override
-    protected void onPostExecute(Drawable bitmap) {
+    protected void onPostExecute(Bitmap bitmap) {
         super.onPostExecute(bitmap);
         if (bitmap != null) {
-            appIcon.setImageDrawable(bitmap);
+            appIcon.setImageBitmap(bitmap);
         }
     }
 
     @Override
-    protected Drawable doInBackground(String... params) {
-        Drawable bitmap = AppHelper.getDrawable(context, params[0]);
+    protected Bitmap doInBackground(String... params) {
+        Bitmap bitmap = AppHelper.getBitmap(context, params[0]);
         bitmapCache.putBitmap(params[0], bitmap);
         return bitmap;
     }

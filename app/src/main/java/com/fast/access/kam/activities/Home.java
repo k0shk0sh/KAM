@@ -2,6 +2,7 @@ package com.fast.access.kam.activities;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -26,23 +27,21 @@ import android.widget.ProgressBar;
 
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.adapter.AppsAdapter;
-import com.fast.access.kam.global.helper.FileUtil;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.tasks.ApplicationFetcher;
 import com.fast.access.kam.global.tasks.impl.IAppFetcher;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
+import com.mikepenz.aboutlibraries.Libs;
+import com.mikepenz.aboutlibraries.LibsBuilder;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class Home extends AppCompatActivity implements IAppFetcher, SearchView.OnQueryTextListener {
+public class Home extends AppCompatActivity implements IAppFetcher, SearchView.OnQueryTextListener, NavigationView.OnNavigationItemSelectedListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbar)
@@ -62,6 +61,7 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
     private final String APP_LIST = "AppsList";
     private MenuItem searchItem;
     private SearchView searchView;
+    private final int APP_RESULT = 1001;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -76,7 +76,7 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
-        manager = new GridLayoutManager(this, 1);
+        manager = new GridLayoutManager(this, getResources().getInteger(R.integer.num_row));
         recycler.setItemAnimator(new DefaultItemAnimator());
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(manager);
@@ -126,53 +126,39 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-//                        menuItem.setChecked(true);
-                        mDrawerLayout.closeDrawers();
-                        switch (menuItem.getItemId()) {
-                            case R.id.change_span:
-                                if (manager != null) {
-                                    if (manager.getSpanCount() == 2) {
-                                        manager.setSpanCount(1);
-                                        menuItem.setIcon(R.drawable.ic_list);
-                                    } else {
-                                        menuItem.setIcon(R.drawable.ic_grid);
-                                        manager.setSpanCount(2);
-                                    }
-                                    manager.requestLayout(); // must be called otherwise, exception!!!
-                                }
-                                return true;
-                        }
-                        return true;
-                    }
-                });
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
 
     private OnItemClickListener onClick = new OnItemClickListener() {
         @Override
         public void onItemClickListener(View v, int position) {
-            if (v.getId() == R.id.extractBtn) {
-                AppsModel apps = adapter.getModelList().get(position);
-                FileUtil fileUtil = new FileUtil();
-                File file = fileUtil.generateFile(apps.getName());
-                try {
-                    FileUtils.copyFile(apps.getFile(), file);
-                    showMessage("File extracted to KAM/" + apps.getName() + ".apk");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    showMessage(e.getMessage() != null ? e.getMessage() : "Error Extracting App");
-                }
-            } else if (v.getId() == R.id.shareBtn) {
-
-            } else {
-
-            }
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("AppsModel", adapter.getModelList().get(position));
+            Intent intent = new Intent(Home.this, AppDetailsActivity.class);
+            startActivityForResult(intent, APP_RESULT);
+//            AppsModel apps = adapter.getModelList().get(position);
+//            FileUtil fileUtil = new FileUtil();
+//            File file = fileUtil.generateFile(apps.getName());
+//            try {
+//                FileUtils.copyFile(apps.getFile(), file);
+//                showMessage("File extracted to KAM/" + apps.getName() + ".apk");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                showMessage(e.getMessage() != null ? e.getMessage() : "Error Extracting App");
+//            }
         }
     };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == APP_RESULT) {
+                new ApplicationFetcher(this, this).execute();
+            }
+        }
+    }
 
     private void showMessage(String msg) {
         final Snackbar snackbar = Snackbar.make(mainContent, msg, Snackbar.LENGTH_INDEFINITE);
@@ -195,6 +181,9 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
     public void onUpdate(AppsModel appsModel) {
         if (appsModel != null) {
             if (adapter != null) {
+                if (appsModel.getPackageName() != null) {
+                    appsModel.setImageLocation(AppHelper.saveBitmap(this, appsModel.getPackageName()));
+                }
                 adapter.insert(appsModel);
             }
         }
@@ -219,5 +208,34 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
         }
 
         return false;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+        mDrawerLayout.closeDrawers();
+        switch (menuItem.getItemId()) {
+            case R.id.change_span:
+                if (manager != null) {
+                    if (manager.getSpanCount() == 2) {
+                        manager.setSpanCount(1);
+                        menuItem.setIcon(R.drawable.ic_list);
+                    } else {
+                        menuItem.setIcon(R.drawable.ic_grid);
+                        manager.setSpanCount(2);
+                    }
+                    manager.requestLayout(); // must be called otherwise, exception!!!
+                }
+                return true;
+            case R.id.about:
+                new LibsBuilder()
+                        .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+                        .withAboutIconShown(true)
+                        .withAboutVersionShown(true)
+                        .withAnimations(true)
+                        .withActivityTheme(R.style.AboutActivity)
+                        .start(Home.this);
+                return true;
+        }
+        return true;
     }
 }

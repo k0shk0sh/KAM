@@ -1,5 +1,6 @@
 package com.fast.access.kam.global.helper;
 
+import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 
@@ -26,12 +27,12 @@ public class FileUtil {
         return folderName;
     }
 
-    public File getFile(String path) {
+    public static File getFile(String path) {
         return new File(path);
     }
 
-    private String getJpgImagePath(String path) {
-        return path + ".jpg";
+    private static String getPng(String path) {
+        return path + ".png";
     }
 
     public boolean deleteFile(String path) {
@@ -60,8 +61,8 @@ public class FileUtil {
         }
     }
 
-    public String generateFileName() {
-        return getJpgImagePath("mobiz-" + String.valueOf(System.currentTimeMillis()));
+    public static String generateFileName(String packageName) {
+        return getPng(packageName);
     }
 
     public File generateFile(String path) {
@@ -77,7 +78,11 @@ public class FileUtil {
         return new File(folderName(), path + ".apk");
     }
 
-    public boolean exists(String path) {
-        return getFile(path) != null && getFile(path).exists();
+    public static String getCacheFile(Context context, String packageName) {
+        return context.getCacheDir().getPath() + "/" + generateFileName(packageName);
+    }
+
+    public static boolean exists(String path) {
+        return getFile(path).exists();
     }
 }

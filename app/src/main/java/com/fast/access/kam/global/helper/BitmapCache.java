@@ -1,7 +1,6 @@
 package com.fast.access.kam.global.helper;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 
 import com.fast.access.kam.global.helper.impl.ICache;
@@ -9,13 +8,14 @@ import com.fast.access.kam.global.helper.impl.ICache;
 /**
  * Created by Kosh on 8/17/2015. copyrights are reserved
  */
-public class BitmapCache extends LruCache<String, Drawable> implements ICache {
+public class BitmapCache extends LruCache<String, Bitmap> implements ICache {
 
     final static int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final static int cacheSize = maxMemory / 6;
 
     public BitmapCache() {
         this(cacheSize);
+
     }
 
     public BitmapCache(int max) {
@@ -23,19 +23,19 @@ public class BitmapCache extends LruCache<String, Drawable> implements ICache {
     }
 
     @Override
-    public Drawable getBitmap(String url) {
+    public Bitmap getBitmap(String url) {
         return get(url);
     }
 
     @Override
-    public void putBitmap(String url, Drawable bitmap) {
+    public void putBitmap(String url, Bitmap bitmap) {
         if (get(url) == null) {
             put(url, bitmap);
         }
     }
 
     @Override
-    protected int sizeOf(String key, Drawable value) {
-        return value == null ? 0 : ((BitmapDrawable) value).getBitmap().getByteCount();
+    protected int sizeOf(String key, Bitmap value) {
+        return value == null ? 0 : value.getByteCount();
     }
 }

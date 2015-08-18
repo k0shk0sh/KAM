@@ -1,11 +1,15 @@
 package com.fast.access.kam;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.os.StrictMode;
 
 import com.fast.access.kam.activities.Home;
 import com.fast.access.kam.global.helper.BitmapCache;
-import com.squareup.leakcanary.LeakCanary;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
@@ -25,7 +29,6 @@ public class AppController extends Application {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyDialog().build());
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
-        LeakCanary.install(this);
         CustomActivityOnCrash.setRestartActivityClass(Home.class);
         CustomActivityOnCrash.install(this);
     }
@@ -34,10 +37,34 @@ public class AppController extends Application {
         return controller;
     }
 
-    public BitmapCache getBitmapCache() {
-        if (bitmapCache == null) {
-            bitmapCache = new BitmapCache();
+    public ImageLoader getImageLoader() {
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        if (!imageLoader.isInited()) {
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                    .writeDebugLogs()
+                    .defaultDisplayImageOptions(getOptions())
+                    .threadPriority(Thread.MAX_PRIORITY)
+                    .denyCacheImageMultipleSizesInMemory()
+                    .build();
+            ImageLoader.getInstance().init(config);
         }
-        return bitmapCache;
+        return imageLoader;
     }
+
+    /**
+     * Gets options.
+     *
+     * @return the options
+     */
+    public DisplayImageOptions getOptions() {
+        return new DisplayImageOptions.Builder()
+                .cacheInMemory(true)
+                .considerExifParams(true)
+                .showImageForEmptyUri(R.drawable.ic_not_found)
+                .showImageOnFail(R.drawable.ic_not_found)
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .build();
+    }
+
 }

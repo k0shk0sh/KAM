@@ -8,7 +8,7 @@
     android:layout_margin="10dp"
     android:gravity="center"
     android:padding="10dp"
-    android:text="Loading Apps..."
+    android:text="No Apps..."
     android:textColor="@color/primary"
     android:textSize="18sp"
     android:textStyle="bold">

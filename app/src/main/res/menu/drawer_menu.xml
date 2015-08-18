@@ -13,7 +13,8 @@
             <item
                 android:title="Sub item 1"/>
             <item
-                android:title="Sub item 2"/>
+                android:id="@+id/about"
+                android:title="About"/>
         </menu>
     </item>
 </menu>

@@ -14,7 +14,9 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activities.Home"
-            android:label="@string/app_name">
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="user">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -28,6 +30,10 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/search"/>
         </activity>
+        <activity
+            android:name=".activities.AppDetailsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="user"/>
     </application>
 
 </manifest>

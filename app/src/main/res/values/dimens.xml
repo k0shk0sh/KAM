@@ -9,4 +9,8 @@
 
     <dimen name="button_padding_vertical_material">4dp</dimen>
     <dimen name="button_padding_horizontal_material">8dp</dimen>
+    <dimen name="app_icon">60dp</dimen>
+    <dimen name="image_width">120dp</dimen>
+    <dimen name="image_margin">300dp</dimen>
+
 </resources>
