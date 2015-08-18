@@ -10,6 +10,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -136,7 +137,10 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
             Bundle bundle = new Bundle();
             bundle.putParcelable("AppsModel", adapter.getModelList().get(position));
             Intent intent = new Intent(Home.this, AppDetailsActivity.class);
-            startActivityForResult(intent, APP_RESULT);
+            intent.putExtras(bundle);
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation(Home.this, v, "appIcon");
+            startActivityForResult(intent, APP_RESULT, options.toBundle());
 //            AppsModel apps = adapter.getModelList().get(position);
 //            FileUtil fileUtil = new FileUtil();
 //            File file = fileUtil.generateFile(apps.getName());
@@ -214,18 +218,6 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         mDrawerLayout.closeDrawers();
         switch (menuItem.getItemId()) {
-            case R.id.change_span:
-                if (manager != null) {
-                    if (manager.getSpanCount() == 2) {
-                        manager.setSpanCount(1);
-                        menuItem.setIcon(R.drawable.ic_list);
-                    } else {
-                        menuItem.setIcon(R.drawable.ic_grid);
-                        manager.setSpanCount(2);
-                    }
-                    manager.requestLayout(); // must be called otherwise, exception!!!
-                }
-                return true;
             case R.id.about:
                 new LibsBuilder()
                         .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)

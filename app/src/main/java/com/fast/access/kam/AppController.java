@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.StrictMode;
 
 import com.fast.access.kam.activities.Home;
-import com.fast.access.kam.global.helper.BitmapCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -19,7 +18,6 @@ import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 public class AppController extends Application {
 
     private static AppController controller;
-    private BitmapCache bitmapCache;
 
     @Override
     public void onCreate() {

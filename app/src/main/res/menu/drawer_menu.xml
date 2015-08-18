@@ -3,9 +3,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/change_span"
-            android:icon="@drawable/ic_list"
-            android:title="Change List Display"/>
+            android:title="Stuff"/>
     </group>
 
     <item android:title="Sub items">
