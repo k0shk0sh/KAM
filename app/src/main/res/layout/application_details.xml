@@ -33,7 +33,7 @@
                 android:layout_gravity="center"
                 app:layout_collapseMode="parallax">
 
-                <net.grobas.view.PolygonImageView
+                <ImageView
                     android:id="@+id/appIcon"
                     xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -41,16 +41,7 @@
                     android:layout_height="@dimen/image_width"
                     android:layout_gravity="center"
                     android:layout_marginBottom="20dp"
-                    android:scaleType="fitCenter"
-                    android:transitionName="appIcon"
-                    app:poly_border="true"
-                    app:poly_border_color="@android:color/white"
-                    app:poly_border_width="5dp"
-                    app:poly_corner_radius="5"
-                    app:poly_rotation_angle="0"
-                    app:poly_shadow="true"
-                    app:poly_shadow_color="@android:color/black"
-                    app:poly_vertices="8"/>
+                    android:transitionName="appIcon"/>
 
             </FrameLayout>
 

@@ -8,13 +8,9 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 
-import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
-import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.download.ImageDownloader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,20 +23,14 @@ import butterknife.ButterKnife;
  */
 public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
-    private List<AppsModel> searchList;
-
-    public List<AppsModel> getModelList() {
-        return modelList;
-    }
-
+    private List<AppsModel> searchableList;
     private List<AppsModel> modelList;
+
     private OnItemClickListener onClick;
-    private ImageLoader imageLoader;
 
     public AppsAdapter(OnItemClickListener onClick, List<AppsModel> modelList) {
         this.modelList = modelList;
         this.onClick = onClick;
-        this.imageLoader = AppController.getController().getImageLoader();
     }
 
     @Override
@@ -60,10 +50,7 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     onClick.onItemClickListener(v, position);
                 }
             });
-            if (app.getImageLocation() != null)
-                imageLoader.displayImage(ImageDownloader.Scheme.FILE.wrap(app.getImageLocation()), h.appIcon);
-            else
-                h.appIcon.setImageDrawable(AppHelper.getDrawable(h.itemView.getContext(), app.getPackageName()));
+            h.appIcon.setImageDrawable(app.getDrawable().get(h.itemView.getContext()));
         }
     }
 
@@ -71,7 +58,6 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public int getItemCount() {
         return modelList.size();
     }
-
 
     public void insert(List<AppsModel> apps) {
         modelList.clear();
@@ -93,6 +79,10 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         notifyDataSetChanged();
     }
 
+    public List<AppsModel> getModelList() {
+        return modelList;
+    }
+
     @Override
     public Filter getFilter() {
         return filter;
@@ -103,12 +93,12 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         protected FilterResults performFiltering(CharSequence charSequence) {
             final FilterResults oReturn = new FilterResults();
             final List<AppsModel> results = new ArrayList<>();
-            if (searchList == null) {
-                searchList = modelList;
+            if (searchableList == null) {
+                searchableList = modelList;
             }
             if (charSequence != null) {
-                if (searchList != null && searchList.size() > 0) {
-                    for (final AppsModel appInfo : searchList) {
+                if (searchableList != null && searchableList.size() > 0) {
+                    for (final AppsModel appInfo : searchableList) {
                         if (appInfo.getName().toLowerCase().contains(charSequence.toString())) {
                             results.add(appInfo);
                         }

@@ -1,5 +1,6 @@
 package com.fast.access.kam.activities;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -14,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.bowyer.app.fabtoolbar.FabToolbar;
 import com.fast.access.kam.R;
@@ -21,7 +23,6 @@ import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.model.AppsModel;
 
-import net.grobas.view.PolygonImageView;
 
 import org.apache.commons.io.FileUtils;
 
@@ -38,7 +39,7 @@ import butterknife.OnClick;
 public class AppDetailsActivity extends AppCompatActivity {
 
     @Bind(R.id.appIcon)
-    PolygonImageView appIcon;
+    ImageView appIcon;
     @Bind(R.id.iconBackground)
     FrameLayout iconBackground;
     @Bind(R.id.toolbar)
@@ -54,6 +55,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     @Bind(R.id.fabtoolbar)
     FabToolbar fabtoolbar;
     private AppsModel appsModel;
+    private Bitmap bitmap;
 
     @OnClick(R.id.fab)
     public void onExpand() {
@@ -103,10 +105,15 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         appsModel = getIntent().getExtras().getParcelable("AppsModel");
         if (appsModel != null) {
-            Palette palette = Palette.from(AppHelper.getBitmap(this, appsModel.getPackageName())).generate();
-            iconBackground.setBackgroundColor(palette.getLightMutedColor(getResources().getColor(R.color.primary)));
+            bitmap = AppHelper.getBitmap(this, appsModel.getPackageName());
+            if (bitmap != null) {
+                Palette palette = Palette.from(bitmap).generate();
+                iconBackground.setBackgroundColor(palette.getLightMutedColor(getResources().getColor(R.color.primary)));
+                appIcon.setImageBitmap(bitmap);
+            } else {
+                appIcon.setImageDrawable(AppHelper.getDrawable(this, appsModel.getPackageName()));
+            }
             collapsingToolbar.setTitle(appsModel.getName());
-            appIcon.setImageDrawable(AppHelper.getDrawable(this, appsModel.getPackageName()));
         } else {
             finish();
         }
@@ -116,6 +123,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                if (bitmap != null && !bitmap.isRecycled()) bitmap.recycle();
                 supportFinishAfterTransition();
                 return true;
         }

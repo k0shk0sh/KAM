@@ -34,8 +34,6 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'cat.ereza:customactivityoncrash:1.2.0'
     compile 'commons-io:commons-io:2.4'
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
-    compile project(':polygonimageview')
     compile('com.mikepenz:aboutlibraries:5.1.1@aar') {
         transitive = true
     }

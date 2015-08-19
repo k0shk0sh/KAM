@@ -3,6 +3,8 @@ package com.fast.access.kam.global.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.fast.access.kam.global.loader.cache.AppIcon;
+
 import java.io.File;
 
 /**
@@ -15,6 +17,7 @@ public class AppsModel implements Parcelable {
     private File file;
     private int icon;
     private String imageLocation;
+    private AppIcon drawable;
 
     public String getName() {
         return name;
@@ -87,5 +90,13 @@ public class AppsModel implements Parcelable {
 
     public void setImageLocation(String imageLocation) {
         this.imageLocation = imageLocation;
+    }
+
+    public AppIcon getDrawable() {
+        return drawable;
+    }
+
+    public void setDrawable(AppIcon drawable) {
+        this.drawable = drawable;
     }
 }

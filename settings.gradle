@@ -1,1 +1,1 @@
-include ':app', 'polygonimageview'
+include ':app'

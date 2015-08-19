@@ -3,14 +3,14 @@ package com.fast.access.kam.activities;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -28,10 +28,8 @@ import android.widget.ProgressBar;
 
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.adapter.AppsAdapter;
-import com.fast.access.kam.global.helper.AppHelper;
+import com.fast.access.kam.global.loader.ApplicationsLoader;
 import com.fast.access.kam.global.model.AppsModel;
-import com.fast.access.kam.global.tasks.ApplicationFetcher;
-import com.fast.access.kam.global.tasks.impl.IAppFetcher;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
@@ -42,7 +40,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class Home extends AppCompatActivity implements IAppFetcher, SearchView.OnQueryTextListener, NavigationView.OnNavigationItemSelectedListener {
+public class Home extends AppCompatActivity implements SearchView.OnQueryTextListener, NavigationView.OnNavigationItemSelectedListener,
+        LoaderManager.LoaderCallbacks<List<AppsModel>> {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbar)
@@ -93,16 +92,17 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
-        if (savedInstanceState == null) {
-            new ApplicationFetcher(this, this).execute();
-        } else {
-            if (savedInstanceState.getParcelableArrayList(APP_LIST) != null) {
-                List<AppsModel> models = savedInstanceState.getParcelableArrayList(APP_LIST);
-                adapter.insert(models);
-            } else {
-                new ApplicationFetcher(this, this).execute();
-            }
-        }
+        getSupportLoaderManager().initLoader(1, null, this);
+//        if (savedInstanceState == null) {
+//            new ApplicationFetcher(this, this).execute();
+//        } else {
+//            if (savedInstanceState.getParcelableArrayList(APP_LIST) != null) {
+//                List<AppsModel> models = savedInstanceState.getParcelableArrayList(APP_LIST);
+//                adapter.insert(models);
+//            } else {
+//                new ApplicationFetcher(this, this).execute();
+//            }
+//        }
     }
 
     @Override
@@ -138,8 +138,7 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
             bundle.putParcelable("AppsModel", adapter.getModelList().get(position));
             Intent intent = new Intent(Home.this, AppDetailsActivity.class);
             intent.putExtras(bundle);
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation(Home.this, v, "appIcon");
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Home.this, v, "appIcon");
             startActivityForResult(intent, APP_RESULT, options.toBundle());
         }
     };
@@ -149,43 +148,9 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == APP_RESULT) {
-                new ApplicationFetcher(this, this).execute();
+                //Do nothing, as we are using loaderManager to handle changes.
             }
         }
-    }
-
-    private void showMessage(String msg) {
-        final Snackbar snackbar = Snackbar.make(mainContent, msg, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setActionTextColor(Color.RED).show();
-        snackbar.setAction("Close", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackbar.dismiss();
-            }
-        });
-        snackbar.show();
-    }
-
-    @Override
-    public void onStartFetching() {
-        progress.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onUpdate(AppsModel appsModel) {
-        if (appsModel != null) {
-            if (adapter != null) {
-                if (appsModel.getPackageName() != null) {
-                    appsModel.setImageLocation(AppHelper.saveBitmap(this, appsModel.getPackageName()));
-                }
-                adapter.insert(appsModel);
-            }
-        }
-    }
-
-    @Override
-    public void onFinish(List<AppsModel> appsModels) {
-        progress.setVisibility(View.GONE);
     }
 
     @Override
@@ -217,7 +182,32 @@ public class Home extends AppCompatActivity implements IAppFetcher, SearchView.O
                         .withActivityTheme(R.style.AboutActivity)
                         .start(Home.this);
                 return true;
+            case R.id.refresh:
+                refresh();
+                return true;
+
         }
         return true;
+    }
+
+    @Override
+    public Loader<List<AppsModel>> onCreateLoader(int id, Bundle args) {
+        progress.setVisibility(View.VISIBLE);
+        return new ApplicationsLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<AppsModel>> loader, List<AppsModel> data) {
+        adapter.insert(data);
+        progress.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<AppsModel>> loader) {
+        adapter.clearAll();
+    }
+
+    private void refresh() {
+        getSupportLoaderManager().restartLoader(1, null, this);
     }
 }

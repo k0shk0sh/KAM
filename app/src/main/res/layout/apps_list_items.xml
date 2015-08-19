@@ -1,28 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:layout_margin="10dp"
     android:foreground="?selectableItemBackground">
 
-    <net.grobas.view.PolygonImageView
+    <ImageView
         android:id="@+id/appIcon"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="@dimen/app_icon"
         android:layout_height="@dimen/app_icon"
         android:layout_gravity="center"
-        android:scaleType="fitCenter"
-        android:transitionName="appIcon"
-        app:poly_border="true"
-        app:poly_border_color="@android:color/white"
-        app:poly_border_width="5dp"
-        app:poly_corner_radius="5"
-        app:poly_rotation_angle="0"
-        app:poly_shadow="true"
-        app:poly_shadow_color="@android:color/black"
-        app:poly_vertices="8"/>
+        android:transitionName="appIcon"/>
 </FrameLayout>
