@@ -37,6 +37,7 @@ public class AppListCreator {
             AppsModel model = new AppsModel();
             model.setDrawable(new AppIcon(memoryIconCache, resolveInfo.activityInfo.packageName));
             model.setPackageName(resolveInfo.activityInfo.packageName);
+            model.setFilePath(resolveInfo.activityInfo.applicationInfo.sourceDir);
             model.setName(resolveInfo.loadLabel(pm).toString());
             appList.add(model);
         }

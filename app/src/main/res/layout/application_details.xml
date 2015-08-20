@@ -31,6 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
+                android:background="@drawable/header_background"
                 app:layout_collapseMode="parallax">
 
                 <ImageView
@@ -41,7 +42,8 @@
                     android:layout_height="@dimen/image_width"
                     android:layout_gravity="center"
                     android:layout_marginBottom="20dp"
-                    android:transitionName="appIcon"/>
+                    android:adjustViewBounds="true"
+                    android:transitionName="@string/app_icon_transition"/>
 
             </FrameLayout>
 
@@ -67,10 +69,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/lorem"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 
@@ -79,7 +77,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:tb_color="@color/primary"
+        app:tb_color="@color/accent"
         app:tb_container_gravity="center">
 
         <LinearLayout

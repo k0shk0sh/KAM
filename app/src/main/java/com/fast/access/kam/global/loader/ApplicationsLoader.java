@@ -43,35 +43,18 @@ public class ApplicationsLoader extends AsyncTaskLoader<List<AppsModel>> {
         if (diskCacheAppList == null) {
             diskCacheAppList = new DiskCacheAppList(context);
         }
-        List<AppsModel> appList = diskCacheAppList.getAppList(appIconCache);
-        if (appList != null && appList.size() > 0 && appList.size() == appListCreator.getAppList().size()) {
-            return appList;
+        mApps = diskCacheAppList.getAppList(appIconCache);
+        if (mApps != null && mApps.size() == appListCreator.getAppList().size()) {
+            return mApps;
         }
-        appList = new AppListCreator(context, appIconCache).getAppList();
-        diskCacheAppList.save(appList);
-        return appList;
+        mApps = new AppListCreator(context, appIconCache).getAppList();
+        diskCacheAppList.save(mApps);
+        return mApps;
     }
 
     @Override
     public void deliverResult(List<AppsModel> apps) {
-        if (isReset()) {
-            Log.w(TAG, "+++ Warning! An async query came in while the Loader was reset! +++");
-            if (apps != null) {
-                releaseResources(apps);
-                return;
-            }
-        }
-        List<AppsModel> oldApps = mApps;
-        mApps = apps;
-
-        if (isStarted()) {
-            Log.i(TAG, "+++ Delivering results to the LoaderManager for" + " the ListFragment to display! +++");
-            super.deliverResult(apps);
-        }
-        if (oldApps != null && oldApps != apps) {
-            Log.i(TAG, "+++ Releasing any old data associated with this Loader. +++");
-            releaseResources(oldApps);
-        }
+        super.deliverResult(apps);
     }
 
     @Override
@@ -86,11 +69,8 @@ public class ApplicationsLoader extends AsyncTaskLoader<List<AppsModel>> {
             mAppsObserver = new InstalledAppsObserver(this);
         }
 
-        if (takeContentChanged()) {
+        if (takeContentChanged() || mApps == null) {
             Log.i(TAG, "+++ A content change has been detected... so force load! +++");
-            forceLoad();
-        } else if (mApps == null) {
-            Log.i(TAG, "+++ The current data is data is null... so force load! +++");
             forceLoad();
         }
     }
@@ -104,17 +84,7 @@ public class ApplicationsLoader extends AsyncTaskLoader<List<AppsModel>> {
     @Override
     protected void onReset() {
         Log.i(TAG, "+++ onReset() called! +++");
-
-        // Ensure the loader is stopped.
         onStopLoading();
-
-        // At this point we can release the resources associated with 'apps'.
-        if (mApps != null) {
-            releaseResources(mApps);
-            mApps = null;
-        }
-
-        // The Loader is being reset, so we should stop monitoring for changes.
         if (mAppsObserver != null) {
             getContext().unregisterReceiver(mAppsObserver);
             mAppsObserver = null;
@@ -124,19 +94,12 @@ public class ApplicationsLoader extends AsyncTaskLoader<List<AppsModel>> {
 
     @Override
     public void onCanceled(List<AppsModel> apps) {
-        Log.i(TAG, "+++ onCanceled() called! +++");
         super.onCanceled(apps);
-        releaseResources(apps);
     }
 
     @Override
     public void forceLoad() {
-        Log.i(TAG, "+++ forceLoad() called! +++");
         super.forceLoad();
-    }
-
-    private void releaseResources(List<AppsModel> apps) {
-        //something?
     }
 
 }

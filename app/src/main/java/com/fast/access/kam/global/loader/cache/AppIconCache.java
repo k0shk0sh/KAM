@@ -7,7 +7,6 @@ import android.support.v4.util.LruCache;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by Kosh on 8/19/2015. copyrights are reserved
@@ -44,22 +43,15 @@ public class AppIconCache {
     }
 
     public void putDisk(String packageName, Drawable drawable) {
-        FileOutputStream out = null;
         try {
             if (!new File(getImageFilePath(packageName)).exists()) {
-                out = new FileOutputStream(getImageFilePath(packageName));
+                FileOutputStream out = new FileOutputStream(getImageFilePath(packageName));
                 ((BitmapDrawable) drawable).getBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
+                out.flush();
+                out.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

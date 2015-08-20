@@ -4,7 +4,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -40,8 +39,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class Home extends AppCompatActivity implements SearchView.OnQueryTextListener, NavigationView.OnNavigationItemSelectedListener,
-        LoaderManager.LoaderCallbacks<List<AppsModel>> {
+public class Home extends AppCompatActivity implements SearchView.OnQueryTextListener,
+        NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<List<AppsModel>> {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbar)
@@ -59,17 +58,6 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
     private GridLayoutManager manager;
     private AppsAdapter adapter;
     private final String APP_LIST = "AppsList";
-    private MenuItem searchItem;
-    private SearchView searchView;
-    private final int APP_RESULT = 1001;
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (adapter != null && adapter.getModelList() != null && adapter.getModelList().size() != 0) {
-            outState.putParcelableArrayList(APP_LIST, (ArrayList<? extends Parcelable>) adapter.getModelList());
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,24 +80,14 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
-        getSupportLoaderManager().initLoader(1, null, this);
-//        if (savedInstanceState == null) {
-//            new ApplicationFetcher(this, this).execute();
-//        } else {
-//            if (savedInstanceState.getParcelableArrayList(APP_LIST) != null) {
-//                List<AppsModel> models = savedInstanceState.getParcelableArrayList(APP_LIST);
-//                adapter.insert(models);
-//            } else {
-//                new ApplicationFetcher(this, this).execute();
-//            }
-//        }
+        getSupportLoaderManager().initLoader(0, null, this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        searchItem = menu.findItem(R.id.action_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(this);
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -138,20 +116,11 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
             bundle.putParcelable("AppsModel", adapter.getModelList().get(position));
             Intent intent = new Intent(Home.this, AppDetailsActivity.class);
             intent.putExtras(bundle);
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Home.this, v, "appIcon");
-            startActivityForResult(intent, APP_RESULT, options.toBundle());
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Home.this, v, getString(R.string.app_icon_transition));
+            startActivity(intent, options.toBundle());
         }
     };
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == APP_RESULT) {
-                //Do nothing, as we are using loaderManager to handle changes.
-            }
-        }
-    }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -173,7 +142,7 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         mDrawerLayout.closeDrawers();
         switch (menuItem.getItemId()) {
-            case R.id.about:
+            case R.id.settings:
                 new LibsBuilder()
                         .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
                         .withAboutIconShown(true)
@@ -184,6 +153,9 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
                 return true;
             case R.id.refresh:
                 refresh();
+                return true;
+            case R.id.team:
+                startActivity(new Intent(this, TeamActivity.class));
                 return true;
 
         }
@@ -208,6 +180,6 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
     }
 
     private void refresh() {
-        getSupportLoaderManager().restartLoader(1, null, this);
+        getSupportLoaderManager().restartLoader(0, null, this);
     }
 }

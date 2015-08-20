@@ -38,4 +38,5 @@ dependencies {
         transitive = true
     }
     compile 'com.bowyer.app:fab-toolbar:1.0.0@aar'
+    compile 'com.github.castorflex.verticalviewpager:library:19.0.1'
 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="20dp"
+    android:layout_marginTop="20dp"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <ImageView
+        android:id="@+id/devImg"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="0.7"
+        android:adjustViewBounds="true"
+        android:src="@drawable/kosh"/>
+
+    <com.fast.access.kam.widget.FontTextView
+        android:id="@+id/devAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center"
+        android:lineSpacingExtra="5dp"
+        android:padding="10dp"
+        android:text="Kosh"
+        android:textColor="@color/primary"
+        android:textSize="24dp"
+        android:textStyle="bold"/>
+
+    <com.fast.access.kam.widget.FontTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:lineSpacingExtra="5dp"
+        android:text="Founder, Developer\nAnd UI Developer"
+        android:textColor="@color/accent"
+        android:textSize="22dp"
+        android:textStyle="bold"/>
+</LinearLayout>

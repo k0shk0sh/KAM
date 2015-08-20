@@ -43,7 +43,7 @@
 
     <style name="ToolbarStyle">
         <item name="android:textColorPrimary">@color/white</item>
-        <item name="colorControlNormal">@color/black</item>
+        <item name="colorControlNormal">@color/white</item>
         <item name="colorControlHighlight">@color/accent</item>
     </style>
 </resources>

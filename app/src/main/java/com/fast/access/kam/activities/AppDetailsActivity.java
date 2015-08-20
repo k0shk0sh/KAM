@@ -1,21 +1,25 @@
 package com.fast.access.kam.activities;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bowyer.app.fabtoolbar.FabToolbar;
 import com.fast.access.kam.R;
@@ -23,11 +27,9 @@ import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.model.AppsModel;
 
-
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -55,7 +57,7 @@ public class AppDetailsActivity extends AppCompatActivity {
     @Bind(R.id.fabtoolbar)
     FabToolbar fabtoolbar;
     private AppsModel appsModel;
-    private Bitmap bitmap;
+    private final int APP_RESULT = 1001;
 
     @OnClick(R.id.fab)
     public void onExpand() {
@@ -67,9 +69,14 @@ public class AppDetailsActivity extends AppCompatActivity {
         FileUtil fileUtil = new FileUtil();
         File file = fileUtil.generateFile(appsModel.getName());
         try {
-            FileUtils.copyFile(appsModel.getFile(), file);
-            showMessage("File extracted to KAM/" + appsModel.getName() + ".apk");
-        } catch (IOException e) {
+            File path = getApkFile();
+            if (path.exists()) {
+                FileUtils.copyFile(path, file);
+                goToFolder("KAM/" + appsModel.getName() + ".apk");
+            } else {
+                showMessage("Could not find application file");
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             showMessage(e.getMessage() != null ? e.getMessage() : "Error Extracting App");
         }
@@ -78,14 +85,18 @@ public class AppDetailsActivity extends AppCompatActivity {
 
     @OnClick(R.id.share)
     public void onShare() {
+        share();
         fabtoolbar.slideOutFab();
     }
 
     @OnClick(R.id.delete)
     public void onDelete() {
+        Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
+        intent.setData(Uri.parse("package:" + appsModel.getPackageName()));
+        intent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+        startActivityForResult(intent, APP_RESULT);
         fabtoolbar.slideOutFab();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,14 +116,7 @@ public class AppDetailsActivity extends AppCompatActivity {
 
         appsModel = getIntent().getExtras().getParcelable("AppsModel");
         if (appsModel != null) {
-            bitmap = AppHelper.getBitmap(this, appsModel.getPackageName());
-            if (bitmap != null) {
-                Palette palette = Palette.from(bitmap).generate();
-                iconBackground.setBackgroundColor(palette.getLightMutedColor(getResources().getColor(R.color.primary)));
-                appIcon.setImageBitmap(bitmap);
-            } else {
-                appIcon.setImageDrawable(AppHelper.getDrawable(this, appsModel.getPackageName()));
-            }
+            appIcon.setImageDrawable(AppHelper.getDrawable(this, appsModel.getPackageName()));
             collapsingToolbar.setTitle(appsModel.getName());
         } else {
             finish();
@@ -123,24 +127,77 @@ public class AppDetailsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (bitmap != null && !bitmap.isRecycled()) bitmap.recycle();
                 supportFinishAfterTransition();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void showMessage(String msg) {
-        final Snackbar snackbar = Snackbar.make(mainContent, msg, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setActionTextColor(Color.RED).show();
-        snackbar.setAction("Close", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackbar.dismiss();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == APP_RESULT) {
+                onBackPressed();
             }
-        });
-        snackbar.show();
+        }
+    }
+
+    /**
+     * would love to use snakbar, but then the fabtoolbar layout make the fab overlay the snackbar.
+     *
+     * @param msg
+     */
+    private void showMessage(String msg) {
+        Toast.makeText(AppDetailsActivity.this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    private File getApkFile() throws PackageManager.NameNotFoundException {
+        if (appsModel.getFilePath() == null) {//making sure setting the path if doesn't exists
+            ApplicationInfo packageInfo = getPackageManager().getApplicationInfo(appsModel.getPackageName(), 0);
+            appsModel.setFilePath(packageInfo.sourceDir);
+        }
+        return new File(appsModel.getFilePath());
+    }
+
+    private void goToFolder(String location) {
+        new AlertDialog.Builder(this)
+                .setTitle("Success")
+                .setMessage("Hooray!, The APK extracted successfully at " + location)
+                .setPositiveButton("Open Folder", new DialogInterface.OnClickListener() {
+                    @SuppressLint("SdCardPath")
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            Uri kam = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/KAM"));
+                            intent.setData(kam);
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            showMessage("No Application found to open the folder.");
+                        }
+                    }
+                }).setNegativeButton("Close", null)
+                .show();
+    }
+
+    private void share() {
+        try {
+            File path = getApkFile();
+            if (path.exists()) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(path));
+                intent.setType("application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(Intent.createChooser(intent, "Share " + appsModel.getName()));
+            } else {
+                showMessage("Could not find application file");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

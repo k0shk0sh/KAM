@@ -7,13 +7,16 @@
             android:title="Refresh"/>
     </group>
 
-    <item android:title="Sub items">
+    <item android:title="Others">
         <menu>
             <item
-                android:title="Sub item 1"/>
+                android:id="@+id/team"
+                android:icon="@drawable/ic_members"
+                android:title="The Team"/>
             <item
-                android:id="@+id/about"
-                android:title="About"/>
+                android:id="@+id/settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Settings"/>
         </menu>
     </item>
 </menu>

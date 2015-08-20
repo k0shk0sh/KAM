@@ -32,6 +32,11 @@
             android:name=".activities.AppDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="user"/>
+        <activity
+            android:name=".activities.TeamActivity"
+            android:label="The Team"
+            android:theme="@style/AboutActivity"/>
+
     </application>
 
 </manifest>

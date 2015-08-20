@@ -5,18 +5,15 @@ import android.os.Parcelable;
 
 import com.fast.access.kam.global.loader.cache.AppIcon;
 
-import java.io.File;
-
 /**
  * Created by Kosh on 8/16/2015. copyrights are reserved
  */
 public class AppsModel implements Parcelable {
 
+
     private String name;
     private String packageName;
-    private File file;
-    private int icon;
-    private String imageLocation;
+    private String filePath;
     private AppIcon drawable;
 
     public String getName() {
@@ -35,20 +32,20 @@ public class AppsModel implements Parcelable {
         this.packageName = packageName;
     }
 
-    public File getFile() {
-        return file;
+    public AppIcon getDrawable() {
+        return drawable;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public void setDrawable(AppIcon drawable) {
+        this.drawable = drawable;
     }
 
-    public int getIcon() {
-        return icon;
+    public String getFilePath() {
+        return filePath;
     }
 
-    public void setIcon(int icon) {
-        this.icon = icon;
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     @Override
@@ -60,8 +57,7 @@ public class AppsModel implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.name);
         dest.writeString(this.packageName);
-        dest.writeSerializable(this.file);
-        dest.writeInt(this.icon);
+        dest.writeString(this.filePath);
     }
 
     public AppsModel() {
@@ -70,8 +66,7 @@ public class AppsModel implements Parcelable {
     protected AppsModel(Parcel in) {
         this.name = in.readString();
         this.packageName = in.readString();
-        this.file = (File) in.readSerializable();
-        this.icon = in.readInt();
+        this.filePath = in.readString();
     }
 
     public static final Parcelable.Creator<AppsModel> CREATOR = new Parcelable.Creator<AppsModel>() {
@@ -83,20 +78,4 @@ public class AppsModel implements Parcelable {
             return new AppsModel[size];
         }
     };
-
-    public String getImageLocation() {
-        return imageLocation;
-    }
-
-    public void setImageLocation(String imageLocation) {
-        this.imageLocation = imageLocation;
-    }
-
-    public AppIcon getDrawable() {
-        return drawable;
-    }
-
-    public void setDrawable(AppIcon drawable) {
-        this.drawable = drawable;
-    }
 }

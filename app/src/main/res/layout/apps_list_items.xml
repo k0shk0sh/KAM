@@ -13,5 +13,5 @@
         android:layout_width="@dimen/app_icon"
         android:layout_height="@dimen/app_icon"
         android:layout_gravity="center"
-        android:transitionName="appIcon"/>
+        android:transitionName="@string/app_icon_transition"/>
 </FrameLayout>
