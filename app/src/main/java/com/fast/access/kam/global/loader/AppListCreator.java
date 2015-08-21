@@ -2,6 +2,7 @@ package com.fast.access.kam.global.loader;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
@@ -18,13 +19,20 @@ import java.util.List;
  * Created by Kosh on 8/19/2015. copyrights are reserved
  */
 public class AppListCreator {
-    private final Context context;
-    private final AppIconCache memoryIconCache;
+    private Context context;
+    private AppIconCache memoryIconCache;
+    private boolean withoutCache;
 
     public AppListCreator(Context context, AppIconCache iconCache) {
         this.context = context;
         memoryIconCache = iconCache;
     }
+
+    public AppListCreator(Context context, boolean withoutCache) {
+        this.context = context;
+        this.withoutCache = withoutCache;
+    }
+
 
     public List<AppsModel> getAppList() {
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
@@ -35,10 +43,21 @@ public class AppListCreator {
         Collections.sort(list, new ResolveInfo.DisplayNameComparator(pm));
         for (ResolveInfo resolveInfo : list) {
             AppsModel model = new AppsModel();
-            model.setDrawable(new AppIcon(memoryIconCache, resolveInfo.activityInfo.packageName));
+            if (!withoutCache) {
+                model.setDrawable(new AppIcon(memoryIconCache, resolveInfo.activityInfo.packageName));
+            }
             model.setPackageName(resolveInfo.activityInfo.packageName);
             model.setFilePath(resolveInfo.activityInfo.applicationInfo.sourceDir);
-            model.setName(resolveInfo.loadLabel(pm).toString());
+            model.setAppName(resolveInfo.loadLabel(pm).toString());
+            try {
+                PackageInfo info = context.getPackageManager().getPackageInfo(resolveInfo.activityInfo.packageName, PackageManager.GET_PERMISSIONS);
+                model.setVersionCode(Integer.toString(info.versionCode));
+                model.setVersionName(info.versionName);
+                model.setFirstInstallTime(info.firstInstallTime);
+                model.setLastUpdateTime(info.lastUpdateTime);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
             appList.add(model);
         }
         return appList;

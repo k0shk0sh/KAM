@@ -99,7 +99,7 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (charSequence != null) {
                 if (searchableList != null && searchableList.size() > 0) {
                     for (final AppsModel appInfo : searchableList) {
-                        if (appInfo.getName().toLowerCase().contains(charSequence.toString())) {
+                        if (appInfo.getAppName().toLowerCase().contains(charSequence.toString())) {
                             results.add(appInfo);
                         }
                     }

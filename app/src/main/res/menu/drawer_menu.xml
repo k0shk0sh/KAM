@@ -5,6 +5,12 @@
         <item
             android:id="@+id/refresh"
             android:title="Refresh"/>
+        <item
+            android:id="@+id/backup"
+            android:title="Backup"/>
+        <item
+            android:id="@+id/restore"
+            android:title="Restore"/>
     </group>
 
     <item android:title="Others">

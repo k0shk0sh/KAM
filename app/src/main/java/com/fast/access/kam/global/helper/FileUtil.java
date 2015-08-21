@@ -61,6 +61,7 @@ public class FileUtil {
         }
     }
 
+
     public static String generateFileName(String packageName) {
         return getPng(packageName);
     }
@@ -85,4 +86,7 @@ public class FileUtil {
     public static boolean exists(String path) {
         return getFile(path).exists();
     }
+
+
+
 }

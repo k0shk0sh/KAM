@@ -1,6 +1,7 @@
 package com.fast.access.kam.global.helper;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,6 +13,9 @@ import com.fast.access.kam.R;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Kosh on 8/17/2015. copyrights are reserved
@@ -67,5 +71,15 @@ public class AppHelper {
             }
         }
         return null;
+    }
+
+    public static List<String> getAppPermissions(Context context, String packageName) {
+        try {
+            PackageInfo info = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+            return Arrays.asList(info.requestedPermissions);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

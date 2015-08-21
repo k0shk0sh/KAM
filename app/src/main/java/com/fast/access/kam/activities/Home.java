@@ -3,13 +3,13 @@ package com.fast.access.kam.activities;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -27,8 +27,11 @@ import android.widget.ProgressBar;
 
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.adapter.AppsAdapter;
-import com.fast.access.kam.global.loader.ApplicationsLoader;
+import com.fast.access.kam.global.loader.ApplicationFetcher;
+import com.fast.access.kam.global.loader.impl.OnAppFetching;
 import com.fast.access.kam.global.model.AppsModel;
+import com.fast.access.kam.global.model.EventsModel;
+import com.fast.access.kam.global.service.ExecutorService;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
 import com.mikepenz.aboutlibraries.Libs;
 import com.mikepenz.aboutlibraries.LibsBuilder;
@@ -40,7 +43,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class Home extends AppCompatActivity implements SearchView.OnQueryTextListener,
-        NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<List<AppsModel>> {
+        NavigationView.OnNavigationItemSelectedListener, OnAppFetching {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbar)
@@ -58,6 +61,15 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
     private GridLayoutManager manager;
     private AppsAdapter adapter;
     private final String APP_LIST = "AppsList";
+    private ApplicationFetcher appFetcher;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (adapter != null && adapter.getModelList() != null) {
+            outState.putParcelableArrayList(APP_LIST, (ArrayList<? extends Parcelable>) adapter.getModelList());
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +92,23 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
-        getSupportLoaderManager().initLoader(0, null, this);
+        if (savedInstanceState == null) {
+            startLoading();
+        } else {
+            if (savedInstanceState.getParcelableArrayList(APP_LIST) != null) {
+                List<AppsModel> models = savedInstanceState.getParcelableArrayList(APP_LIST);
+                adapter.insert(models);
+            } else {
+                startLoading();
+            }
+        }
+    }
+
+    private void startLoading() {
+        if (appFetcher == null) {
+            appFetcher = new ApplicationFetcher(this, this);
+            appFetcher.execute();
+        }
     }
 
     @Override
@@ -113,14 +141,13 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
         @Override
         public void onItemClickListener(View v, int position) {
             Bundle bundle = new Bundle();
-            bundle.putParcelable("AppsModel", adapter.getModelList().get(position));
+            bundle.putParcelable("app", adapter.getModelList().get(position));
             Intent intent = new Intent(Home.this, AppDetailsActivity.class);
             intent.putExtras(bundle);
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Home.this, v, getString(R.string.app_icon_transition));
             startActivity(intent, options.toBundle());
         }
     };
-
 
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -157,29 +184,71 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
             case R.id.team:
                 startActivity(new Intent(this, TeamActivity.class));
                 return true;
+            case R.id.backup:
+                startService(true);
+                return true;
+            case R.id.restore:
+                startService(false);
+                break;
 
         }
         return true;
     }
 
-    @Override
-    public Loader<List<AppsModel>> onCreateLoader(int id, Bundle args) {
-        progress.setVisibility(View.VISIBLE);
-        return new ApplicationsLoader(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<AppsModel>> loader, List<AppsModel> data) {
-        adapter.insert(data);
-        progress.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<AppsModel>> loader) {
-        adapter.clearAll();
+    private void startService(boolean isBack) {
+        Intent intent = new Intent(this, ExecutorService.class);
+        intent.putExtra("isBack", isBack);
+        startService(intent);
     }
 
     private void refresh() {
-        getSupportLoaderManager().restartLoader(0, null, this);
+        if (appFetcher != null) {
+            if (appFetcher.getStatus() == AsyncTask.Status.PENDING) {
+                appFetcher.execute();
+            } else if (appFetcher.getStatus() == AsyncTask.Status.FINISHED) {
+                appFetcher = new ApplicationFetcher(this, this);
+                appFetcher.execute();
+            }
+        }
     }
+
+    public void onEvent(final EventsModel eventsModel) {
+        if (eventsModel != null) {
+            if (eventsModel.getEventType() != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch (eventsModel.getEventType()) {
+                            case DELETE:
+                                removeByPackage(eventsModel.getPackageName());
+                                break;
+                            case NEW:
+                                refreshList();
+                                break;
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void removeByPackage(String packageName) {
+    }
+
+    private void refreshList() {
+        new AppsModel().deleteAll();
+    }
+
+    @Override
+    public void onTaskStart() {
+        progress.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void OnTaskFinished(List<AppsModel> appsModels) {
+        progress.setVisibility(View.GONE);
+        adapter.insert(appsModels);
+    }
+
+
 }

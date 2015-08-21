@@ -67,12 +67,12 @@ public class AppDetailsActivity extends AppCompatActivity {
     @OnClick(R.id.extract)
     public void onExtract() {
         FileUtil fileUtil = new FileUtil();
-        File file = fileUtil.generateFile(appsModel.getName());
+        File file = fileUtil.generateFile(appsModel.getAppName());
         try {
             File path = getApkFile();
             if (path.exists()) {
                 FileUtils.copyFile(path, file);
-                goToFolder("KAM/" + appsModel.getName() + ".apk");
+                goToFolder("KAM/" + appsModel.getAppName() + ".apk");
             } else {
                 showMessage("Could not find application file");
             }
@@ -113,11 +113,10 @@ public class AppDetailsActivity extends AppCompatActivity {
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
         }
-
-        appsModel = getIntent().getExtras().getParcelable("AppsModel");
+        appsModel = getIntent().getExtras().getParcelable("app");
         if (appsModel != null) {
             appIcon.setImageDrawable(AppHelper.getDrawable(this, appsModel.getPackageName()));
-            collapsingToolbar.setTitle(appsModel.getName());
+            collapsingToolbar.setTitle(appsModel.getAppName());
         } else {
             finish();
         }
@@ -191,7 +190,7 @@ public class AppDetailsActivity extends AppCompatActivity {
                 intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(path));
                 intent.setType("application/vnd.android.package-archive");
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(Intent.createChooser(intent, "Share " + appsModel.getName()));
+                startActivity(Intent.createChooser(intent, "Share " + appsModel.getAppName()));
             } else {
                 showMessage("Could not find application file");
             }
