@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
 import com.fast.access.kam.activities.base.BaseActivity;
 import com.fast.access.kam.global.adapter.AppsAdapter;
@@ -89,6 +90,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppController.getController().getBus().register(this);
         manager = new GridLayoutManager(this, getResources().getInteger(R.integer.num_row));
         recycler.setItemAnimator(new DefaultItemAnimator());
         recycler.setHasFixedSize(true);
@@ -278,5 +280,11 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         adapter.insert(appsModels);
     }
 
-
+    @Override
+    protected void onDestroy() {
+        if (AppController.getController().getBus().isRegistered(this)) {
+            AppController.getController().getBus().unregister(this);
+        }
+        super.onDestroy();
+    }
 }
