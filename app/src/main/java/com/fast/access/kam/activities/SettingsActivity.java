@@ -29,10 +29,10 @@ public class SettingsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         if (AppHelper.isDarkTheme(this)) {
             setTheme(R.style.AboutActivityDark);
         }
+        super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .replace(R.id.container, new SettingsFragment())

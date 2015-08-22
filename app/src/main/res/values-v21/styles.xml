@@ -14,4 +14,17 @@
         <item name="android:windowSharedElementExitTransition">@transition/image_transition</item>
     </style>
 
+    <style name="DarkTheme" parent="AppTheme.Dark">
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:colorEdgeEffect">@color/primary</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/image_transition</item>
+        <item name="android:windowExitTransition">@transition/image_transition</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/image_transition</item>
+        <item name="android:windowSharedElementExitTransition">@transition/image_transition</item>
+    </style>
+
 </resources>

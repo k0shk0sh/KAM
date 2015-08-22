@@ -3,13 +3,13 @@ package com.fast.access.kam.activities;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -94,6 +94,10 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(manager);
         mDrawerLayout.setStatusBarBackgroundColor(AppHelper.getPrimaryDarkColor(AppHelper.getPrimaryColor(this)));
+        navigationView.setItemIconTintList(ColorStateList.valueOf(AppHelper.getAccentColor(this)));
+        if (AppHelper.isDarkTheme(this)) {
+            navigationView.setItemTextColor(ColorStateList.valueOf(AppHelper.getAccentColor(this)));
+        }
         adapter = new AppsAdapter(onClick, new ArrayList<AppsModel>());
         recycler.setAdapter(adapter);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -152,8 +156,9 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
             bundle.putParcelable("app", adapter.getModelList().get(position));
             Intent intent = new Intent(Home.this, AppDetailsActivity.class);
             intent.putExtras(bundle);
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Home.this, v, getString(R.string.app_icon_transition));
-            startActivity(intent, options.toBundle());
+//            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Home.this, v, getString(R.string.app_icon_transition));
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         }
     };
 
@@ -206,6 +211,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     private void refresh() {
         if (appFetcher != null) {
             if (appFetcher.getStatus() != AsyncTask.Status.RUNNING) {
+                appFetcher = new ApplicationFetcher(this, this);
                 appFetcher.execute();
             } else {
                 Toast.makeText(Home.this, "Please wait while loading apps.", Toast.LENGTH_SHORT).show();
@@ -219,13 +225,15 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(Home.this, eventsModel.getPackageName(), Toast.LENGTH_SHORT).show();
                         switch (eventsModel.getEventType()) {
                             case DELETE:
                                 removeByPackage(eventsModel.getPackageName());
                                 break;
                             case NEW:
                                 refreshList(eventsModel.getPackageName());
+                                break;
+                            case THEME:
+                                recreate();
                                 break;
                         }
                     }

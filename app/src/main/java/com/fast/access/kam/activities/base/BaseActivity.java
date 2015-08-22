@@ -26,16 +26,16 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         if (AppHelper.isDarkTheme(this)) {
             setTheme(R.style.DarkTheme);
         }
+        super.onCreate(savedInstanceState);
         setContentView(layout());
         ButterKnife.bind(this);
         if (AppHelper.isLollipop()) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setNavigationBarColor(AppHelper.getAccentColor(this));
             if (canBack()) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                 getWindow().setStatusBarColor(AppHelper.getPrimaryDarkColor(AppHelper.getPrimaryColor(this)));
             }
         }

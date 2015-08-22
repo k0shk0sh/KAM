@@ -6,8 +6,11 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.fast.access.kam.AppController;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.EventsModel;
+
+import java.io.File;
 
 /**
  * Created by kosh on 12/12/2014. CopyRights @ styleme
@@ -23,8 +26,12 @@ public class ApplicationsReceiver extends BroadcastReceiver {
             if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
                 if (!isReplacing) {
                     if (pkg != null) {
-                        new AppsModel().deleteByPackageName(pkg);
                         post(pkg, EventsModel.EventType.DELETE);
+                        new AppsModel().deleteByPackageName(pkg);
+                        String path = AppHelper.getCachedImagePath(context, pkg);
+                        if (path != null) {
+                            new File(path).delete();//remove image cache.
+                        }
                     }
                 }
             } else if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {

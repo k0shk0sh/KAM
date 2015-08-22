@@ -32,6 +32,8 @@ public class AppsModel extends Model implements Parcelable {
     private long firstInstallTime;
     @Column
     private long lastUpdateTime;
+    private List<String> permissions;
+
 
     public String getAppName() {
         return appName;
@@ -199,4 +201,12 @@ public class AppsModel extends Model implements Parcelable {
             return new AppsModel[size];
         }
     };
+
+    public List<String> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<String> permissions) {
+        this.permissions = permissions;
+    }
 }

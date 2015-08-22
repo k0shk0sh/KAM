@@ -9,7 +9,7 @@
             android:key="primary_color"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
-            android:summary="Change Fast Access primary color"
+            android:summary="Change KAM primary color"
             android:title="Toolbar Color"
             app:choices="@array/colors_primary"
             app:itemLayout="@layout/dash_grid_item_color"
@@ -19,7 +19,7 @@
             android:key="accent_color"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
-            android:summary="Change Fast Access accent color"
+            android:summary="Change KAM accent color"
             android:title="Accent Color"
             app:choices="@array/colors_accent"
             app:itemLayout="@layout/dash_grid_item_color"
@@ -38,7 +38,7 @@
         <Preference
             android:key="size"
             android:layout="@layout/custom_settings"
-            android:title="Folder Size"/>
+            android:title="Backup &amp; Restore Folder Size"/>
         <Preference
             android:key="version"
             android:layout="@layout/custom_settings"

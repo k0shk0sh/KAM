@@ -6,7 +6,7 @@ package com.fast.access.kam.global.model;
 public class EventsModel {
 
     public enum EventType {
-        DELETE, NEW
+        DELETE, NEW, THEME
     }
 
     private String packageName;

@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.chrisplus.rootmanager.RootManager;
@@ -23,9 +24,11 @@ import com.fast.access.kam.global.model.AppsModel;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Kosh on 8/17/2015. copyrights are reserved
@@ -201,4 +204,20 @@ public class AppHelper {
         return Color.argb(a, Math.max((int) (r * tran), 0), Math.max((int) (g * tran), 0), Math.max((int) (b * tran), 0));
     }
 
+    public static String getCachedImagePath(Context context, String packageName) {
+        if (context.getExternalCacheDir() != null)
+            return context.getExternalCacheDir().getAbsolutePath() + File.pathSeparator + packageName + ".png";
+        else
+            return null;
+    }
+
+    public static String prettifyDate(long timestamp) {
+        SimpleDateFormat dateFormat;
+        if (DateUtils.isToday(timestamp)) {
+            dateFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        } else {
+            dateFormat = new SimpleDateFormat("dd MMM hh:mm a", Locale.getDefault());
+        }
+        return dateFormat.format(timestamp);
+    }
 }
