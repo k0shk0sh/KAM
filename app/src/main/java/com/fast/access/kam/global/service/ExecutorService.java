@@ -2,6 +2,7 @@ package com.fast.access.kam.global.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,11 +13,14 @@ import android.support.v7.app.NotificationCompat;
 import android.widget.Toast;
 
 import com.fast.access.kam.R;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.loader.impl.OnTaskLoading;
 import com.fast.access.kam.global.loader.task.BackupTasker;
 import com.fast.access.kam.global.loader.task.OnProgress;
 import com.fast.access.kam.global.loader.task.RestoreTasker;
 import com.fast.access.kam.global.model.ProgressModel;
+
+import java.io.File;
 
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved
@@ -28,7 +32,6 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
     private int max = 0;
     private BackupTasker backupTasker;
     private RestoreTasker restoreTasker;
-
 
     @Nullable
     @Override
@@ -48,27 +51,47 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
             backupTasker = new BackupTasker(this, this, this);
         }
         if (restoreTasker == null) {
-            restoreTasker = new RestoreTasker(this, this, this);
+            restoreTasker = new RestoreTasker(this, this);
         }
-        boolean isBackup = intent.getBooleanExtra("isBack", true);
-        if (isBackup) {
-            if (backupTasker.getStatus() != AsyncTask.Status.RUNNING && restoreTasker.getStatus() != AsyncTask.Status.RUNNING) {
-                backupTasker.execute();
+        if (intent != null) {
+            if (intent.getStringExtra("cancel") != null) {//not needed currently, but maybe in the future?
+                if (backupTasker != null && restoreTasker != null) {
+                    if (backupTasker.getStatus() == AsyncTask.Status.RUNNING) {
+                        backupTasker.cancel(true);
+                        stopSelf();
+                    } else if (restoreTasker.getStatus() == AsyncTask.Status.RUNNING) {
+                        restoreTasker.cancel(true);
+                        stopSelf();
+                    }
+                }
+            } else if (intent.getStringExtra("isBack") != null) {
+                String isBackup = intent.getStringExtra("isBack");
+                if (isBackup.equalsIgnoreCase("backup")) {
+                    if (backupTasker.getStatus() != AsyncTask.Status.RUNNING && restoreTasker.getStatus() != AsyncTask.Status.RUNNING) {
+                        backupTasker.execute();
+                    }
+                } else if (isBackup.equalsIgnoreCase("restore")) {
+                    if (restoreTasker.getStatus() != AsyncTask.Status.RUNNING && backupTasker.getStatus() != AsyncTask.Status.RUNNING) {
+                        restoreTasker.execute(this);
+                    }
+                }
             }
         } else {
-            if (restoreTasker.getStatus() != AsyncTask.Status.RUNNING && backupTasker.getStatus() != AsyncTask.Status.RUNNING) {
-                restoreTasker.execute();
-            }
+            Toast.makeText(ExecutorService.this, "Error, please restart-app and try again", Toast.LENGTH_LONG).show();
         }
         return START_STICKY;
     }
 
     private Notification notification(String title, int progress, int max) {
+        Intent intent = new Intent(this, ExecutorService.class);
+        intent.putExtra("cancel", "cancel");
+        PendingIntent pendingIntent = PendingIntent.getService(this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setAutoCancel(false);
         builder.setNumber(progress != 0 ? progress : max);
         builder.setProgress(max, progress, false);
         builder.setContentTitle(title);
+//        builder.addAction(R.drawable.ic_cancel, "Cancel", pendingIntent);
         builder.setSmallIcon(R.drawable.ic_notifications);
         Notification notification = builder.build();
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -77,12 +100,17 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
     }
 
     @Override
-    public void onProgressUpdate(ProgressModel progressModel) {
+    public void onProgressUpdate(ProgressModel progressModel, boolean isBackup) {
         if (progressModel.getFileName() == null) {
             max = progressModel.getMax();
             notification("Working...", 0, max);
         } else {
             notification(progressModel.getFileName(), progressModel.getProgress(), max);
+            if (!isBackup) {
+                if (progressModel.getFilePath() != null && !progressModel.getFilePath().isEmpty()) {
+                    AppHelper.installApk(this, new File(progressModel.getFileName()));
+                }
+            }
         }
     }
 
@@ -115,5 +143,6 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
             Toast.makeText(ExecutorService.this, msg != null ? msg : "Error while backing up files.", Toast.LENGTH_SHORT).show();
         else
             Toast.makeText(ExecutorService.this, msg != null ? msg : "Error while restoring files.", Toast.LENGTH_SHORT).show();
+        stopSelf();
     }
 }

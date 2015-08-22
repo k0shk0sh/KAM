@@ -79,6 +79,11 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         notifyDataSetChanged();
     }
 
+    public void remove(AppsModel m) {
+        modelList.remove(m);
+        notifyDataSetChanged();
+    }
+
     public List<AppsModel> getModelList() {
         return modelList;
     }

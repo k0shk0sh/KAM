@@ -4,21 +4,20 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
 import com.fast.access.kam.R;
+import com.fast.access.kam.activities.base.BaseActivity;
 import com.fast.access.kam.fragments.MemberFragment;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 
 /**
  * Created by Kosh on 8/20/2015. copyrights are reserved
  */
-public class TeamActivity extends AppCompatActivity {
+public class TeamActivity extends BaseActivity {
 
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -26,16 +25,34 @@ public class TeamActivity extends AppCompatActivity {
     VerticalViewPager pager;
 
     @Override
+    protected int layout() {
+        return R.layout.team_activity;
+    }
+
+    @Override
+    protected boolean canBack() {
+        return true;
+    }
+
+    @Override
+    protected boolean hasMenu() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.team_activity);
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        final ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
         pager.setAdapter(new TeamPagerAdapter(getSupportFragmentManager()));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private class TeamPagerAdapter extends FragmentStatePagerAdapter {

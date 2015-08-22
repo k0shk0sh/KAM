@@ -13,8 +13,6 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,9 +22,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.fast.access.kam.R;
+import com.fast.access.kam.activities.base.BaseActivity;
 import com.fast.access.kam.global.adapter.AppsAdapter;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.loader.ApplicationFetcher;
 import com.fast.access.kam.global.loader.impl.OnAppFetching;
 import com.fast.access.kam.global.model.AppsModel;
@@ -40,9 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
-public class Home extends AppCompatActivity implements SearchView.OnQueryTextListener,
+public class Home extends BaseActivity implements SearchView.OnQueryTextListener,
         NavigationView.OnNavigationItemSelectedListener, OnAppFetching {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -72,22 +72,29 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
     }
 
     @Override
+    protected int layout() {
+        return R.layout.main_activity;
+    }
+
+    @Override
+    protected boolean canBack() {
+        return false;
+    }
+
+    @Override
+    protected boolean hasMenu() {
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
-        ButterKnife.bind(this);
         manager = new GridLayoutManager(this, getResources().getInteger(R.integer.num_row));
         recycler.setItemAnimator(new DefaultItemAnimator());
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(manager);
         adapter = new AppsAdapter(onClick, new ArrayList<AppsModel>());
         recycler.setAdapter(adapter);
-        setSupportActionBar(toolbar);
-        final ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setHomeAsUpIndicator(R.drawable.ic_menu);
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (navigationView != null) {
             setupDrawerContent(navigationView);
@@ -197,17 +204,16 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
 
     private void startService(boolean isBack) {
         Intent intent = new Intent(this, ExecutorService.class);
-        intent.putExtra("isBack", isBack);
+        intent.putExtra("isBack", isBack ? "backup" : "restore");
         startService(intent);
     }
 
     private void refresh() {
         if (appFetcher != null) {
-            if (appFetcher.getStatus() == AsyncTask.Status.PENDING) {
+            if (appFetcher.getStatus() != AsyncTask.Status.RUNNING) {
                 appFetcher.execute();
-            } else if (appFetcher.getStatus() == AsyncTask.Status.FINISHED) {
-                appFetcher = new ApplicationFetcher(this, this);
-                appFetcher.execute();
+            } else {
+                Toast.makeText(Home.this, "Please wait while loading apps.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -218,12 +224,13 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Toast.makeText(Home.this, eventsModel.getPackageName(), Toast.LENGTH_SHORT).show();
                         switch (eventsModel.getEventType()) {
                             case DELETE:
                                 removeByPackage(eventsModel.getPackageName());
                                 break;
                             case NEW:
-                                refreshList();
+                                refreshList(eventsModel.getPackageName());
                                 break;
                         }
                     }
@@ -233,10 +240,31 @@ public class Home extends AppCompatActivity implements SearchView.OnQueryTextLis
     }
 
     private void removeByPackage(String packageName) {
+        if (adapter != null) {
+            if (packageName != null && !packageName.isEmpty()) {
+                AppsModel appsModel = new AppsModel();
+                AppsModel toRemove = null;
+                appsModel.deleteByPackageName(packageName);
+                for (AppsModel model : adapter.getModelList()) {
+                    if (model.getPackageName().equalsIgnoreCase(packageName)) {
+                        toRemove = model;
+                    }
+                }
+                if (toRemove != null) {
+                    adapter.remove(toRemove);
+                }
+            }
+        }
     }
 
-    private void refreshList() {
-        new AppsModel().deleteAll();
+    private void refreshList(String packageName) {
+        if (packageName != null) {
+            AppsModel appsModel = AppHelper.getNewAppDetails(this, packageName);
+            if (appsModel != null) {
+                appsModel.save(appsModel);
+                refresh();
+            }
+        }
     }
 
     @Override

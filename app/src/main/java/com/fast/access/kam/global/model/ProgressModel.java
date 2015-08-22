@@ -7,6 +7,8 @@ public class ProgressModel {
     private String fileName;
     private int progress;
     private int max;
+    private String msg;
+    private String filePath;
 
     public int getProgress() {
         return progress;
@@ -30,5 +32,21 @@ public class ProgressModel {
 
     public void setMax(int max) {
         this.max = max;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 }

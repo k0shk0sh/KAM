@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved
  */
-public class BackupTasker extends AsyncTask<Void, ProgressModel, Void> {
+public class BackupTasker extends AsyncTask<Void, ProgressModel, ProgressModel> {
 
     private Context context;
     private OnTaskLoading onTaskLoading;
@@ -42,17 +42,21 @@ public class BackupTasker extends AsyncTask<Void, ProgressModel, Void> {
     @Override
     protected void onProgressUpdate(ProgressModel... values) {
         super.onProgressUpdate(values);
-        onProgress.onProgressUpdate(values[0]);
+        onProgress.onProgressUpdate(values[0], true);
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
+    protected void onPostExecute(ProgressModel aVoid) {
         super.onPostExecute(aVoid);
-        onTaskLoading.onPostExecute(true);
+        if (aVoid != null) {
+            onTaskLoading.onErrorExecuting(aVoid.getMsg(), true);
+        } else {
+            onTaskLoading.onPostExecute(true);
+        }
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected ProgressModel doInBackground(Void... params) {
         List<AppsModel> appsModelList = new AppListCreator(context, false).getAppList();
         ProgressModel progressModel = new ProgressModel();
         progressModel.setMax(appsModelList.size());
@@ -87,7 +91,9 @@ public class BackupTasker extends AsyncTask<Void, ProgressModel, Void> {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            onTaskLoading.onErrorExecuting(e.getMessage(), true);
+            ProgressModel error = new ProgressModel();
+            error.setMsg(e.getMessage());
+            return error;
         }
 
         return null;

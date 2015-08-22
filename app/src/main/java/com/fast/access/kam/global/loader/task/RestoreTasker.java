@@ -2,13 +2,15 @@ package com.fast.access.kam.global.loader.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.chrisplus.rootmanager.container.Result;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.loader.impl.OnTaskLoading;
 import com.fast.access.kam.global.model.ProgressModel;
 
 import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 
 import java.io.File;
@@ -17,13 +19,12 @@ import java.util.List;
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved
  */
-public class RestoreTasker extends AsyncTask<Void, ProgressModel, Void> {
-    private Context context;
+public class RestoreTasker extends AsyncTask<Context, ProgressModel, ProgressModel> {
+
     private OnTaskLoading onTaskLoading;
     private OnProgress onProgress;
 
-    public RestoreTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
-        this.context = context;
+    public RestoreTasker(OnTaskLoading onTaskLoading, OnProgress onProgress) {
         this.onTaskLoading = onTaskLoading;
         this.onProgress = onProgress;
     }
@@ -37,17 +38,21 @@ public class RestoreTasker extends AsyncTask<Void, ProgressModel, Void> {
     @Override
     protected void onProgressUpdate(ProgressModel... values) {
         super.onProgressUpdate(values);
-        onProgress.onProgressUpdate(values[0]);
+        onProgress.onProgressUpdate(values[0], false);
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
+    protected void onPostExecute(ProgressModel aVoid) {
         super.onPostExecute(aVoid);
-        onTaskLoading.onPostExecute(false);
+        if (aVoid != null) {
+            onTaskLoading.onErrorExecuting(aVoid.getMsg(), true);
+        } else {
+            onTaskLoading.onPostExecute(false);
+        }
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected ProgressModel doInBackground(Context... params) {
         FileUtil fileUtil = new FileUtil();
         File zipFile = new File(fileUtil.getBaseFolderName() + "backup.zip");
         try {
@@ -60,16 +65,26 @@ public class RestoreTasker extends AsyncTask<Void, ProgressModel, Void> {
                 FileHeader fileHeader = (FileHeader) fileHeaderList.get(i);
                 zFile.extractFile(fileHeader, fileUtil.getBaseFolderName());
                 progressModel = new ProgressModel();
+                if (AppHelper.isRoot()) {
+                    Result result = AppHelper.installApkSilently(fileUtil.getBaseFolderName() + fileHeader.getFileName());
+                    if (result != null && result.getStatusCode() == Result.ResultEnum.INSTALL_SUCCESS.getStatusCode()) {
+                        boolean deleteApk = new File(fileUtil.getBaseFolderName() + fileHeader.getFileName()).delete();
+                        Log.e("Result", result.getMessage() + " deleteApk: " + Boolean.toString(deleteApk));
+                    }
+                } else {
+                    progressModel.setFilePath(fileUtil.getBaseFolderName() + fileHeader.getFileName());
+                }
                 progressModel.setProgress(i);
                 progressModel.setFileName(fileHeader.getFileName());
                 publishProgress(progressModel);
             }
             zipFile.delete();
-        } catch (ZipException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            onTaskLoading.onErrorExecuting(e.getMessage(), true);
+            ProgressModel error = new ProgressModel();
+            error.setMsg(e.getMessage());
+            return error;
         }
-
         return null;
     }
 }

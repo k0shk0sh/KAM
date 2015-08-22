@@ -14,7 +14,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -23,6 +22,7 @@ import android.widget.Toast;
 
 import com.bowyer.app.fabtoolbar.FabToolbar;
 import com.fast.access.kam.R;
+import com.fast.access.kam.activities.base.BaseActivity;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.model.AppsModel;
@@ -32,13 +32,12 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
  * Created by Kosh on 8/18/2015. copyrights are reserved
  */
-public class AppDetailsActivity extends AppCompatActivity {
+public class AppDetailsActivity extends BaseActivity {
 
     @Bind(R.id.appIcon)
     ImageView appIcon;
@@ -99,10 +98,23 @@ public class AppDetailsActivity extends AppCompatActivity {
     }
 
     @Override
+    protected int layout() {
+        return R.layout.application_details;
+    }
+
+    @Override
+    protected boolean canBack() {
+        return true;
+    }
+
+    @Override
+    protected boolean hasMenu() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.application_details);
-        ButterKnife.bind(this);
         if (getIntent() == null || getIntent().getExtras() == null) {
             finish();
             return;

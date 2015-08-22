@@ -121,6 +121,14 @@ public class AppsModel extends Model implements Parcelable {
         }
     }
 
+    public void save(AppsModel appsModel) {
+        if (appsModel.getByPackage(appsModel.getPackageName()) != null) {
+            swap(appsModel, getByPackage(appsModel.getPackageName())).save();
+        } else {
+            appsModel.save();
+        }
+    }
+
     private AppsModel swap(AppsModel model, AppsModel app) {
         app.setFilePath(model.getFilePath());
         app.setLastUpdateTime(model.getLastUpdateTime());

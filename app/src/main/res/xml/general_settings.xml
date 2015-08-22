@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="General">
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="About">
+        <Preference
+            android:key="size"
+            android:title="Folder Size"/>
+        <Preference
+            android:key="version"
+            android:title="Application Version"/>
+
+        <Preference
+            android:key="libraries"
+            android:title="Open Source Libraries"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

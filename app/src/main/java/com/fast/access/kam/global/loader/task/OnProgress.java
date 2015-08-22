@@ -7,6 +7,6 @@ import com.fast.access.kam.global.model.ProgressModel;
  */
 public interface OnProgress {
 
-    void onProgressUpdate(ProgressModel progressModel);
+    void onProgressUpdate(ProgressModel progressModel, boolean isBackup);
 
 }
