@@ -2,10 +2,7 @@
 /.idea
 /.git
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
 /build
-/captures
 /KAM.iml
 /app/app.iml
+/app/fabric.properties

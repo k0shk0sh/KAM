@@ -6,6 +6,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission
         android:name="android.permission.VIBRATE"
         android:maxSdkVersion="18"/>
@@ -38,16 +39,17 @@
         <activity
             android:name=".activities.AppDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_details"
             android:screenOrientation="user"/>
         <activity
             android:name=".activities.TeamActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="The Team"
+            android:label="@string/the_team"
             android:theme="@style/AboutActivity"/>
         <activity
             android:name=".activities.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="Settings"
+            android:label="@string/action_settings"
             android:theme="@style/AboutActivity"/>
 
         <receiver android:name=".global.receiver.ApplicationsReceiver">
@@ -69,5 +71,8 @@
         <meta-data
             android:name="AA_DB_VERSION"
             android:value="1"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="6ed82b6e0756853d7d782a3f547f84f9ecba217e"/>
     </application>
 </manifest>

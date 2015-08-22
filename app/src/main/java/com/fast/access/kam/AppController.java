@@ -1,15 +1,14 @@
 package com.fast.access.kam;
 
-import android.content.Context;
-import android.os.AsyncTask;
-
 import com.activeandroid.app.Application;
-import com.chrisplus.rootmanager.RootManager;
+import com.crashlytics.android.Crashlytics;
 import com.fast.access.kam.activities.Home;
 import com.fast.access.kam.global.helper.AppHelper;
+import com.fast.access.kam.global.loader.task.RootChecker;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import de.greenrobot.event.EventBus;
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by Kosh on 8/16/2015. copyrights are reserved
@@ -24,7 +23,11 @@ public class AppController extends Application {
         controller = this;
         CustomActivityOnCrash.setRestartActivityClass(Home.class);
         CustomActivityOnCrash.install(this);
-        new RootChecker().execute(this);
+        Crashlytics crashlytics = new Crashlytics.Builder().disabled(BuildConfig.DEBUG).build();
+        Fabric.with(this, crashlytics);
+        if (!AppHelper.isRootEnabled(this)) {
+            new RootChecker().execute(this);
+        }
     }
 
     public static AppController getController() {
@@ -33,17 +36,5 @@ public class AppController extends Application {
 
     public EventBus getBus() {
         return EventBus.getDefault();
-    }
-
-
-    private class RootChecker extends AsyncTask<Context, Boolean, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Context... params) {
-            if (AppHelper.isRoot()) {
-                AppHelper.setRootEnabled(params[0], RootManager.getInstance().obtainPermission());
-            }
-            return null;
-        }
     }
 }
