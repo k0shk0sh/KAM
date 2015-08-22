@@ -17,4 +17,5 @@ Maecenas mattis, erat et viverra euismod, neque diam porttitor tellus, in fringi
 Praesent tincidunt lorem sit amet mi consequat cursus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Praesent vitae blandit sapien. Curabitur est sapien, lobortis sit amet facilisis vel, faucibus eu quam. Nam tempus libero at tellus tempor laoreet. Pellentesque quam lorem, tincidunt in molestie eget, dictum vel risus. Nunc gravida convallis mattis.
     </string>
     <string name="app_icon_transition">appIcon</string>
+    <string name="open_source_libraries">Open Source Libraries</string>
 </resources>

@@ -35,8 +35,6 @@ import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.EventsModel;
 import com.fast.access.kam.global.service.ExecutorService;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
-import com.mikepenz.aboutlibraries.Libs;
-import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -179,13 +177,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         mDrawerLayout.closeDrawers();
         switch (menuItem.getItemId()) {
             case R.id.settings:
-                new LibsBuilder()
-                        .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
-                        .withAboutIconShown(true)
-                        .withAboutVersionShown(true)
-                        .withAnimations(true)
-                        .withActivityTheme(R.style.AboutActivity)
-                        .start(Home.this);
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.refresh:
                 refresh();

@@ -21,11 +21,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bowyer.app.fabtoolbar.FabToolbar;
+import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
 import com.fast.access.kam.activities.base.BaseActivity;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.model.AppsModel;
+import com.fast.access.kam.global.model.EventsModel;
 
 import org.apache.commons.io.FileUtils;
 
@@ -115,6 +117,7 @@ public class AppDetailsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppController.getController().getBus().register(this);
         if (getIntent() == null || getIntent().getExtras() == null) {
             finish();
             return;
@@ -210,5 +213,39 @@ public class AppDetailsActivity extends BaseActivity {
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        if (AppController.getController().getBus().isRegistered(this)) {
+            AppController.getController().getBus().unregister(this);
+        }
+        super.onDestroy();
+    }
+
+    public void onEvent(final EventsModel eventsModel) {
+        if (eventsModel != null) {
+            if (eventsModel.getEventType() != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch (eventsModel.getEventType()) {
+                            case DELETE:
+                                if (appsModel != null) {
+                                    if (eventsModel.getPackageName().equalsIgnoreCase(appsModel.getPackageName())) {
+                                        finish();
+                                        Toast.makeText(AppDetailsActivity.this, "Application uninstalled", Toast.LENGTH_LONG).show();
+                                    }
+                                } else {
+                                    finish();
+                                }
+                                break;
+
+                        }
+                    }
+                });
+            }
+        }
+    }
+
 
 }

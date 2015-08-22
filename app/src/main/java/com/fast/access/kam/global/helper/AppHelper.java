@@ -119,7 +119,6 @@ public class AppHelper {
         return RootManager.getInstance().hasRooted();
     }
 
-
     public static AppsModel getNewAppDetails(Context context, String packageName) {
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
@@ -136,6 +135,18 @@ public class AppHelper {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static long getFolderSize(File f) {
+        long size = 0;
+        if (f.isDirectory()) {
+            for (File file : f.listFiles()) {
+                size += getFolderSize(file);
+            }
+        } else {
+            size = f.length();
+        }
+        return size;
     }
 
 }
