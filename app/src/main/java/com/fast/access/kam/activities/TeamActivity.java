@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import com.fast.access.kam.R;
 import com.fast.access.kam.activities.base.BaseActivity;
 import com.fast.access.kam.fragments.MemberFragment;
+import com.fast.access.kam.global.helper.AppHelper;
 
 import butterknife.Bind;
 import fr.castorflex.android.verticalviewpager.VerticalViewPager;
@@ -41,6 +42,9 @@ public class TeamActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (AppHelper.isDarkTheme(this)) {
+            setTheme(R.style.AboutActivityDark);
+        }
         super.onCreate(savedInstanceState);
         pager.setAdapter(new TeamPagerAdapter(getSupportFragmentManager()));
     }

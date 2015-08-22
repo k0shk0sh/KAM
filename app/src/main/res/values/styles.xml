@@ -28,6 +28,66 @@
         <item name="android:actionModeBackground">@color/primary</item>
     </style>
 
+    <style name="AboutActivityDark" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/divider</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:actionModeBackground">@color/primary</item>
+        <item name="actionModeBackground">@color/primary</item>
+        <item name="android:actionModeCloseDrawable">@drawable/ic_back</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_back</item>
+        <item name="android:alertDialogTheme">@style/CustomDialogTheme</item>
+        <item name="android:dialogTheme">@style/CustomDialogTheme</item>
+        <item name="colorControlNormal">?colorAccent</item>
+        <item name="colorControlHighlight">?colorAccent</item>
+    </style>
+
+    <style name="DarkTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/divider</item>
+        <item name="colorControlNormal">?colorAccent</item>
+        <item name="colorControlHighlight">?colorAccent</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:actionModeBackground">@color/primary</item>
+        <item name="actionModeBackground">@color/primary</item>
+        <item name="android:actionModeCloseDrawable">@drawable/ic_back</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_back</item>
+        <item name="android:alertDialogTheme">@style/CustomDialogTheme</item>
+        <item name="android:dialogTheme">@style/CustomDialogTheme</item>
+    </style>
+
+    <style name="CustomDialogTheme" parent="Theme.AppCompat.Dialog">
+        <item name="android:background">@color/black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/divider</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="Alerter" parent="Theme.AppCompat.Dialog">
+        <item name="android:background">@color/black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/divider</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
     <style name="MenuItemText">
         <item name="android:textColor">@color/primary</item>
         <item name="colorControlNormal">?colorAccent</item>

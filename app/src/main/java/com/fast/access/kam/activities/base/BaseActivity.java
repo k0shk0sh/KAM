@@ -6,8 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import com.fast.access.kam.R;
+import com.fast.access.kam.global.helper.AppHelper;
 
 import butterknife.ButterKnife;
 
@@ -25,10 +27,21 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (AppHelper.isDarkTheme(this)) {
+            setTheme(R.style.DarkTheme);
+        }
         setContentView(layout());
         ButterKnife.bind(this);
+        if (AppHelper.isLollipop()) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            getWindow().setNavigationBarColor(AppHelper.getAccentColor(this));
+            if (canBack()) {
+                getWindow().setStatusBarColor(AppHelper.getPrimaryDarkColor(AppHelper.getPrimaryColor(this)));
+            }
+        }
         if (findViewById(R.id.toolbar) != null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            toolbar.setBackgroundColor(AppHelper.getPrimaryColor(this));
             setSupportActionBar(toolbar);
             final ActionBar ab = getSupportActionBar();
             if (ab != null) {

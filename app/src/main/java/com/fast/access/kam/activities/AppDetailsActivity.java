@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -12,7 +13,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -122,12 +122,6 @@ public class AppDetailsActivity extends BaseActivity {
             finish();
             return;
         }
-        setSupportActionBar(toolbar);
-        fabtoolbar.setFab(fab);
-        final ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
         appsModel = getIntent().getExtras().getParcelable("app");
         if (appsModel != null) {
             appIcon.setImageDrawable(AppHelper.getDrawable(this, appsModel.getPackageName()));
@@ -135,6 +129,10 @@ public class AppDetailsActivity extends BaseActivity {
         } else {
             finish();
         }
+        fabtoolbar.setFab(fab);
+        fabtoolbar.setColor(AppHelper.getAccentColor(this));
+        fab.setBackgroundTintList(ColorStateList.valueOf(AppHelper.getAccentColor(this)));
+        fab.setRippleColor(AppHelper.getPrimaryColor(this));
     }
 
     @Override

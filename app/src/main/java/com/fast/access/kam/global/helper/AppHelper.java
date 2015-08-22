@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -147,6 +149,56 @@ public class AppHelper {
             size = f.length();
         }
         return size;
+    }
+
+    public static int[] colorChoice(Context context) {
+
+        int[] mColorChoices = null;
+        String[] color_array = context.getResources().getStringArray(R.array.default_color_choice_values);
+
+        if (color_array != null && color_array.length > 0) {
+            mColorChoices = new int[color_array.length];
+            for (int i = 0; i < color_array.length; i++) {
+                mColorChoices[i] = Color.parseColor(color_array[i]);
+            }
+        }
+        return mColorChoices;
+    }
+
+    /**
+     * Parse whiteColor
+     *
+     * @return
+     */
+    public static int parseWhiteColor() {
+        return Color.parseColor("#FFFFFF");
+    }
+
+    public static boolean isTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
+    public static boolean isDarkTheme(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("dark_theme", false);
+    }
+
+    public static int getAccentColor(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getInt("accent_color", context.getResources().getColor(R.color.accent));
+    }
+
+    public static int getPrimaryColor(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getInt("primary_color", context.getResources().getColor(R.color.primary));
+    }
+
+    public static int getPrimaryDarkColor(int color) {
+        double tran = 0.8;
+        int a = Color.alpha(color);
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+        return Color.argb(a, Math.max((int) (r * tran), 0), Math.max((int) (g * tran), 0), Math.max((int) (b * tran), 0));
     }
 
 }

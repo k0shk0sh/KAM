@@ -1,20 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="General">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.fast.access.kam.widget.CustomPrefCategory android:title="General">
 
-    </PreferenceCategory>
+        <com.fast.access.kam.widget.colorpicker.dashclockpicker.ColorPreference
+            android:defaultValue="@color/primary"
+            android:key="primary_color"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:summary="Change Fast Access primary color"
+            android:title="Toolbar Color"
+            app:choices="@array/colors_primary"
+            app:itemLayout="@layout/dash_grid_item_color"
+            app:numColumns="5"/>
+        <com.fast.access.kam.widget.colorpicker.dashclockpicker.ColorPreference
+            android:defaultValue="@color/accent"
+            android:key="accent_color"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:summary="Change Fast Access accent color"
+            android:title="Accent Color"
+            app:choices="@array/colors_accent"
+            app:itemLayout="@layout/dash_grid_item_color"
+            app:numColumns="5"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="dark_theme"
+            android:layout="@layout/custom_settings"
+            android:persistent="true"
+            android:summary="Change to dark theme"
+            android:title="Dark Theme"
+            android:widgetLayout="@layout/preference_dynamiccheckbox"/>
+    </com.fast.access.kam.widget.CustomPrefCategory>
 
-    <PreferenceCategory android:title="About">
+    <com.fast.access.kam.widget.CustomPrefCategory android:title="About">
         <Preference
             android:key="size"
+            android:layout="@layout/custom_settings"
             android:title="Folder Size"/>
         <Preference
             android:key="version"
+            android:layout="@layout/custom_settings"
             android:title="Application Version"/>
 
         <Preference
             android:key="libraries"
+            android:layout="@layout/custom_settings"
             android:title="Open Source Libraries"/>
 
-    </PreferenceCategory>
+    </com.fast.access.kam.widget.CustomPrefCategory>
 </PreferenceScreen>

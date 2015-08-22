@@ -93,6 +93,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         recycler.setItemAnimator(new DefaultItemAnimator());
         recycler.setHasFixedSize(true);
         recycler.setLayoutManager(manager);
+        mDrawerLayout.setStatusBarBackgroundColor(AppHelper.getPrimaryDarkColor(AppHelper.getPrimaryColor(this)));
         adapter = new AppsAdapter(onClick, new ArrayList<AppsModel>());
         recycler.setAdapter(adapter);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
