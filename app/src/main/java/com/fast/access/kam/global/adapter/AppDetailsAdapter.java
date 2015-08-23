@@ -56,7 +56,8 @@ public class AppDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
         } else {
             PermissionsHolder holder = (PermissionsHolder) viewHolder;
-            holder.permissionName.setText(appDetails.get(position).getAppPermission() != null ? appDetails.get(position).getAppPermission() : "N/A");
+            String info = appDetails.get(position).getAppPermission();
+            holder.permissionName.setText(info != null ? info : "N/A");
             holder.parallaxBackground.setBackgroundColor(backgroundColor);
         }
     }

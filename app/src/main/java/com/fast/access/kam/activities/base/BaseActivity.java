@@ -1,5 +1,7 @@
 package com.fast.access.kam.activities.base;
 
+import android.app.ActivityManager;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +36,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         if (AppHelper.isLollipop()) {
             getWindow().setNavigationBarColor(AppHelper.getAccentColor(this));
+            setTaskDescription(new ActivityManager.TaskDescription(getString(R.string.app_name), BitmapFactory.decodeResource(getResources(),
+                    R.mipmap.ic_launcher), AppHelper.getPrimaryColor(this)));//changes the color in the recent apps too.
             if (canBack()) {
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                 getWindow().setStatusBarColor(AppHelper.getPrimaryDarkColor(AppHelper.getPrimaryColor(this)));

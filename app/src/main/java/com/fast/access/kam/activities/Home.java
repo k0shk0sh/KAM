@@ -2,6 +2,7 @@ package com.fast.access.kam.activities;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.AsyncTask;
@@ -13,14 +14,17 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -34,15 +38,21 @@ import com.fast.access.kam.global.loader.impl.OnAppFetching;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.EventsModel;
 import com.fast.access.kam.global.service.ExecutorService;
+import com.fast.access.kam.global.util.IabHelper;
+import com.fast.access.kam.global.util.IabResult;
+import com.fast.access.kam.global.util.Inventory;
+import com.fast.access.kam.global.util.Purchase;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
 
 public class Home extends BaseActivity implements SearchView.OnQueryTextListener,
         NavigationView.OnNavigationItemSelectedListener, OnAppFetching {
+    private static final String TAG = "HOME";
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.appbar)
@@ -61,6 +71,8 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     private AppsAdapter adapter;
     private final String APP_LIST = "AppsList";
     private ApplicationFetcher appFetcher;
+    private IabHelper mHelper;
+    private List<String> productsList = new ArrayList<>();
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -114,7 +126,15 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                 startLoading();
             }
         }
+        productsList.addAll(Arrays.asList(getResources().getStringArray(R.array.in_app_billing)));
+        mHelper = new IabHelper(this, getString(R.string.base64));
+        mHelper.startSetup(mPurchaseFinishedListener);
     }
+
+    private void onSuccessPaid() {
+        mHelper.queryInventoryAsync(true, productsList, mReceivedInventoryListener);
+    }
+
 
     private void startLoading() {
         if (appFetcher == null) {
@@ -196,10 +216,31 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                 return true;
             case R.id.restore:
                 startService(false);
-                break;
+                return true;
+            case R.id.donate:
+                final List<String> titles = new ArrayList<>();
+                titles.add("Cup Of Coffee");
+                titles.add("I'm Generous");
+                ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, titles);
+                new AlertDialog.Builder(Home.this)
+                        .setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mHelper.launchPurchaseFlow(Home.this, productsList.get(which), 2001, onIabPurchaseFinishedListener, titles.get(which));
+                            }
+                        }).setNegativeButton("Cancel", null).show();
+
+                return true;
 
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     private void startService(boolean isBack) {
@@ -286,6 +327,48 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         if (AppController.getController().getBus().isRegistered(this)) {
             AppController.getController().getBus().unregister(this);
         }
+        if (mHelper != null) mHelper.dispose();
+        mHelper = null;
         super.onDestroy();
     }
+
+    private IabHelper.OnIabSetupFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabSetupFinishedListener() {
+        @Override
+        public void onIabSetupFinished(IabResult result) {
+            if (!result.isSuccess()) {
+                Log.d(TAG, "In-app Billing setup failed: " + result);
+            } else {
+                Log.d(TAG, "In-app Billing is set up OK");
+            }
+        }
+    };
+
+    private IabHelper.OnIabPurchaseFinishedListener onIabPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
+        @Override
+        public void onIabPurchaseFinished(IabResult result, Purchase info) {
+            if (info != null && info.getSku() != null) {
+                if (info.getSku().equals(productsList.get(0)) || info.getSku().equals(productsList.get(1))) {
+                    onSuccessPaid();
+                }
+            }
+        }
+    };
+    private IabHelper.QueryInventoryFinishedListener mReceivedInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
+        public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+            if (result.isSuccess()) {
+                if (inventory != null && inventory.getSkuDetails(productsList.get(0)) != null) {
+                    mHelper.consumeAsync(inventory.getPurchase(productsList.get(0)), mConsumeFinishedListener);
+                } else if (inventory != null && inventory.getSkuDetails(productsList.get(1)) != null) {
+                    mHelper.consumeAsync(inventory.getPurchase(productsList.get(1)), mConsumeFinishedListener);
+                }
+            }
+        }
+    };
+    private IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
+        public void onConsumeFinished(Purchase purchase, IabResult result) {
+            if (result.isSuccess()) {
+                Toast.makeText(Home.this, "Thank You Very Much", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 }

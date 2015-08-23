@@ -26,6 +26,10 @@
                 android:id="@+id/settings"
                 android:icon="@drawable/ic_settings"
                 android:title="Settings"/>
+            <item
+                android:id="@+id/donate"
+                android:icon="@drawable/ic_donate"
+                android:title="Cup Of Coffee"/>
         </menu>
     </item>
 </menu>
