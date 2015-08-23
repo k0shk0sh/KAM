@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="base64">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkfjnqt9+5lQvzmNHjVUs1ENlZ2PjW+6HGoJahFPQsBCi0KVEuRjr4uubUd3hYafZu9VRp9Q2yGB+HCqVTLPoPKIKd3yEtTAvDF8n4zZp0Qcy72AnNDmGMi2htDMLKcxkekakgyJM3f2N1821XJ3uQwPEdBfQCu0TPdfAIucThrQjqzuQ9EK9Cqv8di04ZGlqKEh7hjMXvsoDtZP1g1kMLl8RUU2ScjoHLkPqXwGBo1gzKU+9rv8uF5lPSd7h1EJS/fuixCasplcc9vnzD/WWEOitDaPV4W6Yq9CPiw7rKgpVGiqPpEAVepxw/yy+fkfFG4Unl7GBc29ga61/Z6VC9QIDAQAB</string>
-    <string-array name="in_app_billing">
-        <item>kam_first</item>
-        <item>kam_second</item>
-    </string-array>
-</resources>
