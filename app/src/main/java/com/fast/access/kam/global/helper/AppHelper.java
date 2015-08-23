@@ -136,6 +136,7 @@ public class AppHelper {
             model.setAppName(context.getPackageManager().getApplicationLabel(context.getPackageManager().getApplicationInfo(packageName,
                     PackageManager.GET_META_DATA)).toString());
             model.setPackageName(packageName);
+            return model;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
