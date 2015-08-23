@@ -5,6 +5,11 @@
 <p align="center">
   <img src="https://github.com/k0shk0sh/KAM/blob/master/art/1024x500.png" alt="KAM" />
 </p>
+
+<p>
+<a href="https://plus.google.com/communities/103843793170863977653">join the community and be in our testing program.</a>
+<a href="https://play.google.com/apps/testing/com.fast.access.kam">Testing Link To Android Play Store</a>
+</p>
 <b><span style="color:#3F51B5;">KAM</span> is an apk manager, extractor,uninstaller, backup, restore and more.</b>
 <p>a work in progress, the application has its main functionality fully working, as soon as an idea popup to my mind i will be implementing it.</p>
 <p><b>the application will be updated daily "hopefully". stay tuned.</b></p>
