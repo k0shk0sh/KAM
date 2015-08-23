@@ -23,6 +23,7 @@ public class RestoreTasker extends AsyncTask<Context, ProgressModel, ProgressMod
 
     private OnTaskLoading onTaskLoading;
     private OnProgress onProgress;
+    private ZipFile zFile;
 
     public RestoreTasker(OnTaskLoading onTaskLoading, OnProgress onProgress) {
         this.onTaskLoading = onTaskLoading;
@@ -56,7 +57,7 @@ public class RestoreTasker extends AsyncTask<Context, ProgressModel, ProgressMod
         FileUtil fileUtil = new FileUtil();
         File zipFile = new File(fileUtil.getBaseFolderName() + "backup.zip");
         try {
-            ZipFile zFile = new ZipFile(zipFile);
+            zFile = new ZipFile(zipFile);
             List fileHeaderList = zFile.getFileHeaders();
             ProgressModel progressModel = new ProgressModel();
             progressModel.setMax(fileHeaderList.size());
@@ -86,5 +87,13 @@ public class RestoreTasker extends AsyncTask<Context, ProgressModel, ProgressMod
             return error;
         }
         return null;
+    }
+
+    public void onStop() {
+        if (zFile != null) {
+            if (zFile.getProgressMonitor() != null) {
+                zFile.getProgressMonitor().cancelAllTasks();
+            }
+        }
     }
 }

@@ -13,6 +13,8 @@
 <b><span style="color:#3F51B5;">KAM</span> is an apk manager, extractor,uninstaller, backup, restore and more.</b>
 <p>a work in progress, the application has its main functionality fully working, as soon as an idea popup to my mind i will be implementing it.</p>
 <p><b>the application will be updated daily "hopefully". stay tuned.</b></p>
+<h1>You Want To Contribute?<h1>
+<p>If you like to be part of this project, please do so. you are welcome at any time to give hand.</p>
 <h1>LICENSE</h1>
 <p>
 <b>Copyright 2015 @ Kosh</b>

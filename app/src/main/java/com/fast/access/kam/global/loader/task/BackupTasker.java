@@ -25,13 +25,13 @@ public class BackupTasker extends AsyncTask<Void, ProgressModel, ProgressModel> 
     private Context context;
     private OnTaskLoading onTaskLoading;
     private OnProgress onProgress;
+    private ZipFile zipFile;
 
     public BackupTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
         this.context = context;
         this.onTaskLoading = onTaskLoading;
         this.onProgress = onProgress;
     }
-
 
     @Override
     protected void onPreExecute() {
@@ -63,6 +63,11 @@ public class BackupTasker extends AsyncTask<Void, ProgressModel, ProgressModel> 
         publishProgress(progressModel);
         try {
             FileUtil fileUtil = new FileUtil();
+            zipFile = new ZipFile(fileUtil.getBaseFolderName() + "backup.zip");
+            if (!zipFile.isValidZipFile()) {
+                if (zipFile.getFile() != null && zipFile.getFile().exists())
+                    zipFile.getFile().delete();
+            }
             int count = 0;
             for (AppsModel model : appsModelList) {
                 if (model != null) {
@@ -75,7 +80,6 @@ public class BackupTasker extends AsyncTask<Void, ProgressModel, ProgressModel> 
                         progressModel.setProgress(count);
                         progressModel.setFileName(fileToSave.getName());
                         publishProgress(progressModel);
-                        ZipFile zipFile = new ZipFile(fileUtil.getBaseFolderName() + "backup.zip");
                         ZipParameters parameters = new ZipParameters();
                         parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
                         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
@@ -97,5 +101,15 @@ public class BackupTasker extends AsyncTask<Void, ProgressModel, ProgressModel> 
         }
 
         return null;
+    }
+
+    public void onStop() {
+        if (zipFile != null) {
+            if (zipFile.getProgressMonitor() != null) {
+                zipFile.getProgressMonitor().cancelAllTasks();
+                if (zipFile.getFile() != null && zipFile.getFile().exists())
+                    zipFile.getFile().delete();
+            }
+        }
     }
 }

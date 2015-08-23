@@ -57,10 +57,14 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
             if (intent.getStringExtra("cancel") != null) {//not needed currently, but maybe in the future?
                 if (backupTasker != null && restoreTasker != null) {
                     if (backupTasker.getStatus() == AsyncTask.Status.RUNNING) {
+                        backupTasker.onStop();
                         backupTasker.cancel(true);
+                        backupTasker = null;
                         stopSelf();
                     } else if (restoreTasker.getStatus() == AsyncTask.Status.RUNNING) {
+                        restoreTasker.onStop();
                         restoreTasker.cancel(true);
+                        restoreTasker = null;
                         stopSelf();
                     }
                 }
@@ -91,7 +95,7 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
         builder.setNumber(progress != 0 ? progress : max);
         builder.setProgress(max, progress, false);
         builder.setContentTitle(title);
-//        builder.addAction(R.drawable.ic_cancel, "Cancel", pendingIntent);
+        builder.addAction(R.drawable.ic_cancel, "Cancel", pendingIntent);
         builder.setSmallIcon(R.drawable.ic_notifications);
         Notification notification = builder.build();
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

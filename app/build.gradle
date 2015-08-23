@@ -59,4 +59,5 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
         transitive = true;
     }
+    compile 'me.everything:providers-android:1.0.1'
 }
