@@ -1,4 +1,4 @@
-package com.fast.access.kam.global.loader.task;
+package com.fast.access.kam.global.task.impl;
 
 import com.fast.access.kam.global.model.ProgressModel;
 

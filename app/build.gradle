@@ -60,4 +60,5 @@ dependencies {
         transitive = true;
     }
     compile 'me.everything:providers-android:1.0.1'
+    compile 'com.google.code.gson:gson:2.3.1'
 }

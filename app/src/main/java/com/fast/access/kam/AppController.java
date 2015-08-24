@@ -4,7 +4,7 @@ import com.activeandroid.app.Application;
 import com.crashlytics.android.Crashlytics;
 import com.fast.access.kam.activities.Home;
 import com.fast.access.kam.global.helper.AppHelper;
-import com.fast.access.kam.global.loader.task.RootChecker;
+import com.fast.access.kam.global.task.RootChecker;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import de.greenrobot.event.EventBus;

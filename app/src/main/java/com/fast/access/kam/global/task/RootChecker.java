@@ -1,4 +1,4 @@
-package com.fast.access.kam.global.loader.task;
+package com.fast.access.kam.global.task;
 
 import android.content.Context;
 import android.os.AsyncTask;

@@ -1,4 +1,4 @@
-package com.fast.access.kam.global.loader;
+package com.fast.access.kam.global.task;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -7,9 +7,10 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v4.util.LruCache;
 
+import com.fast.access.kam.global.loader.AppListCreator;
 import com.fast.access.kam.global.loader.cache.AppIconCache;
 import com.fast.access.kam.global.loader.cache.DiskCacheAppList;
-import com.fast.access.kam.global.loader.impl.OnAppFetching;
+import com.fast.access.kam.global.task.impl.OnAppFetching;
 import com.fast.access.kam.global.model.AppsModel;
 
 import java.util.List;

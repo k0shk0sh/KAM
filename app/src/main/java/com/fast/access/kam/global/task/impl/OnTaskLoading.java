@@ -1,4 +1,4 @@
-package com.fast.access.kam.global.loader.impl;
+package com.fast.access.kam.global.task.impl;
 
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved

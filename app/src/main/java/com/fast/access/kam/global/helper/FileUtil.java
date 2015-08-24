@@ -79,6 +79,19 @@ public class FileUtil {
         return new File(folderName(), path + ".apk");
     }
 
+    public File generateZipFile(String name) {
+        File file = new File(folderName, ".nomedia");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                file.mkdir();
+            }
+        }
+        return new File(folderName(), name + ".zip");
+    }
+
     public static String getCacheFile(Context context, String packageName) {
         return context.getCacheDir().getPath() + "/" + generateFileName(packageName);
     }
@@ -86,7 +99,6 @@ public class FileUtil {
     public static boolean exists(String path) {
         return getFile(path).exists();
     }
-
 
 
 }

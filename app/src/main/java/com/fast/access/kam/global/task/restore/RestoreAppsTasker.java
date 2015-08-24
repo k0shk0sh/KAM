@@ -1,4 +1,4 @@
-package com.fast.access.kam.global.loader.task;
+package com.fast.access.kam.global.task.restore;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,8 +7,9 @@ import android.util.Log;
 import com.chrisplus.rootmanager.container.Result;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
-import com.fast.access.kam.global.loader.impl.OnTaskLoading;
+import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import com.fast.access.kam.global.model.ProgressModel;
+import com.fast.access.kam.global.task.impl.OnProgress;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
@@ -19,13 +20,13 @@ import java.util.List;
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved
  */
-public class RestoreTasker extends AsyncTask<Context, ProgressModel, ProgressModel> {
+public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, ProgressModel> {
 
     private OnTaskLoading onTaskLoading;
     private OnProgress onProgress;
     private ZipFile zFile;
 
-    public RestoreTasker(OnTaskLoading onTaskLoading, OnProgress onProgress) {
+    public RestoreAppsTasker(OnTaskLoading onTaskLoading, OnProgress onProgress) {
         this.onTaskLoading = onTaskLoading;
         this.onProgress = onProgress;
     }

@@ -14,10 +14,10 @@ import android.widget.Toast;
 
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.helper.AppHelper;
-import com.fast.access.kam.global.loader.impl.OnTaskLoading;
-import com.fast.access.kam.global.loader.task.BackupTasker;
-import com.fast.access.kam.global.loader.task.OnProgress;
-import com.fast.access.kam.global.loader.task.RestoreTasker;
+import com.fast.access.kam.global.task.impl.OnTaskLoading;
+import com.fast.access.kam.global.task.backup.BackupAppsTasker;
+import com.fast.access.kam.global.task.impl.OnProgress;
+import com.fast.access.kam.global.task.restore.RestoreAppsTasker;
 import com.fast.access.kam.global.model.ProgressModel;
 
 import java.io.File;
@@ -30,8 +30,8 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
     private final int NOTIFICATION_ID = 1001;
     private final int GENERAL_NOTIFICATION_ID = 1002;
     private int max = 0;
-    private BackupTasker backupTasker;
-    private RestoreTasker restoreTasker;
+    private BackupAppsTasker backupTasker;
+    private RestoreAppsTasker restoreTasker;
 
     @Nullable
     @Override
@@ -48,10 +48,10 @@ public class ExecutorService extends Service implements OnProgress, OnTaskLoadin
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForeground(NOTIFICATION_ID, notification("Working..", 0, 0));
         if (backupTasker == null) {
-            backupTasker = new BackupTasker(this, this, this);
+            backupTasker = new BackupAppsTasker(this, this, this);
         }
         if (restoreTasker == null) {
-            restoreTasker = new RestoreTasker(this, this);
+            restoreTasker = new RestoreAppsTasker(this, this);
         }
         if (intent != null) {
             if (intent.getStringExtra("cancel") != null) {//not needed currently, but maybe in the future?

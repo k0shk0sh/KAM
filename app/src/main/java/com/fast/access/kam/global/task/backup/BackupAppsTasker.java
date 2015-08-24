@@ -1,4 +1,4 @@
-package com.fast.access.kam.global.loader.task;
+package com.fast.access.kam.global.task.backup;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -6,9 +6,10 @@ import android.os.AsyncTask;
 
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.loader.AppListCreator;
-import com.fast.access.kam.global.loader.impl.OnTaskLoading;
+import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.ProgressModel;
+import com.fast.access.kam.global.task.impl.OnProgress;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
@@ -20,14 +21,14 @@ import java.util.List;
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved
  */
-public class BackupTasker extends AsyncTask<Void, ProgressModel, ProgressModel> {
+public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressModel> {
 
     private Context context;
     private OnTaskLoading onTaskLoading;
     private OnProgress onProgress;
     private ZipFile zipFile;
 
-    public BackupTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
+    public BackupAppsTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
         this.context = context;
         this.onTaskLoading = onTaskLoading;
         this.onProgress = onProgress;
