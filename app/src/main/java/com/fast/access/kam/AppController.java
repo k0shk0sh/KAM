@@ -4,6 +4,7 @@ import com.activeandroid.app.Application;
 import com.crashlytics.android.Crashlytics;
 import com.fast.access.kam.activities.Home;
 import com.fast.access.kam.global.helper.AppHelper;
+import com.fast.access.kam.global.loader.cache.IconCache;
 import com.fast.access.kam.global.task.RootChecker;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
@@ -16,6 +17,7 @@ import io.fabric.sdk.android.Fabric;
 public class AppController extends Application {
 
     private static AppController controller;
+    private IconCache mIconCache;
 
     @Override
     public void onCreate() {
@@ -28,6 +30,7 @@ public class AppController extends Application {
         if (!AppHelper.isRootEnabled(this)) {
             new RootChecker().execute(this);
         }
+        mIconCache = new IconCache(this);
     }
 
     public static AppController getController() {
@@ -36,5 +39,14 @@ public class AppController extends Application {
 
     public EventBus getBus() {
         return EventBus.getDefault();
+    }
+
+
+    public IconCache getIconCache() {
+        return mIconCache;
+    }
+
+    public void setIconCache(IconCache iconCache) {
+        mIconCache = iconCache;
     }
 }

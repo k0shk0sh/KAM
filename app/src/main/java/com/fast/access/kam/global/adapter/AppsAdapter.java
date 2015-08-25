@@ -1,5 +1,6 @@
 package com.fast.access.kam.global.adapter;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +51,7 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     onClick.onItemClickListener(v, position);
                 }
             });
-            h.appIcon.setImageDrawable(app.getDrawable().get(h.itemView.getContext()));
+            h.appIcon.setImageDrawable(new BitmapDrawable(h.itemView.getResources(), app.getBitmap()));
         }
     }
 

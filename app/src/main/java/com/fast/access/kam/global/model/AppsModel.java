@@ -1,39 +1,83 @@
 package com.fast.access.kam.global.model;
 
+import android.content.ComponentName;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.activeandroid.Model;
-import com.activeandroid.annotation.Column;
-import com.activeandroid.query.Delete;
-import com.activeandroid.query.Select;
-import com.fast.access.kam.global.loader.cache.AppIcon;
+import com.fast.access.kam.global.loader.cache.IconCache;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by Kosh on 8/16/2015. copyrights are reserved
  */
-public class AppsModel extends Model implements Parcelable {
-
-
-    @Column
+public class AppsModel implements Parcelable {
     private String appName;
-    @Column
     private String packageName;
-    @Column
     private String filePath;
-    private AppIcon drawable;
-    @Column
     private String versionName;
-    @Column
     private String versionCode;
-    @Column
     private long firstInstallTime;
-    @Column
     private long lastUpdateTime;
+    private Bitmap bitmap;
+    private ComponentName componentName;
     private List<String> permissions;
+    private IconCache iconCache;
+    private PackageManager pm;
+    private ResolveInfo info;
+    private HashMap<Object, CharSequence> labelCache;
+    private String activityInfoName;
 
+    public AppsModel(PackageManager pm, ResolveInfo info, IconCache iconCache, HashMap<Object, CharSequence> labelCache) {
+        this.packageName = info.activityInfo.applicationInfo.packageName;
+        this.componentName = new ComponentName(packageName, info.activityInfo.name);
+        this.activityInfoName = info.activityInfo.name;
+        try {
+            PackageInfo pi = pm.getPackageInfo(packageName, 0);
+            this.firstInstallTime = pi.firstInstallTime;
+            this.lastUpdateTime = pi.lastUpdateTime;
+            this.versionCode = Integer.toString(pi.versionCode);
+            this.versionName = pi.versionName;
+            this.filePath = info.activityInfo.applicationInfo.sourceDir;
+            this.appName = info.loadLabel(pm).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        iconCache.getTitleAndIcon(this, info, labelCache);
+    }
+
+    public PackageManager getPm() {
+        return pm;
+    }
+
+    public void setPm(PackageManager pm) {
+        this.pm = pm;
+    }
+
+    public ResolveInfo getInfo() {
+        return info;
+    }
+
+    public void setInfo(ResolveInfo info) {
+        this.info = info;
+    }
+
+    public HashMap<Object, CharSequence> getLabelCache() {
+        return labelCache;
+    }
+
+    public void setLabelCache(HashMap<Object, CharSequence> labelCache) {
+        this.labelCache = labelCache;
+    }
+
+    public static Creator<AppsModel> getCREATOR() {
+        return CREATOR;
+    }
 
     public String getAppName() {
         return appName;
@@ -49,14 +93,6 @@ public class AppsModel extends Model implements Parcelable {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
-    }
-
-    public AppIcon getDrawable() {
-        return drawable;
-    }
-
-    public void setDrawable(AppIcon drawable) {
-        this.drawable = drawable;
     }
 
     public String getFilePath() {
@@ -99,68 +135,44 @@ public class AppsModel extends Model implements Parcelable {
         this.firstInstallTime = firstInstallTime;
     }
 
-    public AppsModel getById(long id) {
-        return new Select().from(AppsModel.class).where("id = ?", id).executeSingle();
+    public List<String> getPermissions() {
+        return permissions;
     }
 
-    public AppsModel getByPackage(String packageName) {
-        return new Select().from(AppsModel.class).where("packageName = ?", packageName).executeSingle();
+    public void setPermissions(List<String> permissions) {
+        this.permissions = permissions;
     }
 
-    public void save(List<AppsModel> appsModels) {
-        if (appsModels != null && !appsModels.isEmpty()) {
-            for (AppsModel model : appsModels) {
-                if (model != null) {
-                    if (model.getPackageName() != null) {
-                        if (getByPackage(model.getPackageName()) != null) {
-                            swap(model, getByPackage(model.getPackageName())).save();
-                        } else {
-                            model.save();
-                        }
-                    }
-                }
-            }
-        }
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 
-    public void save(AppsModel appsModel) {
-        if (appsModel.getByPackage(appsModel.getPackageName()) != null) {
-            swap(appsModel, getByPackage(appsModel.getPackageName())).save();
-        } else {
-            appsModel.save();
-        }
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 
-    private AppsModel swap(AppsModel model, AppsModel app) {
-        app.setFilePath(model.getFilePath());
-        app.setLastUpdateTime(model.getLastUpdateTime());
-        app.setFirstInstallTime(model.getFirstInstallTime());
-        app.setVersionName(model.getVersionName());
-        app.setVersionCode(model.getVersionCode());
-        app.setPackageName(model.getPackageName());
-        app.setAppName(model.getAppName());
-        return app;
+    public ComponentName getComponentName() {
+        return componentName;
     }
 
-    public List<AppsModel> getAllApps() {
-        return new Select().from(AppsModel.class).orderBy("appName DESC").execute();
+    public void setComponentName(ComponentName componentName) {
+        this.componentName = componentName;
     }
 
-    public List<AppsModel> getByFirstInstallation() {
-        return new Select().from(AppsModel.class).orderBy("firstInstallTime DESC").execute();
+    public IconCache getIconCache() {
+        return iconCache;
     }
 
-    public List<AppsModel> getByLastInstalltion() {
-        return new Select().from(AppsModel.class).orderBy("lastUpdateTime DESC").execute();
-
+    public void setIconCache(IconCache iconCache) {
+        this.iconCache = iconCache;
     }
 
-    public void deleteByPackageName(String packageName) {
-        new Delete().from(AppsModel.class).where("packageName = ?", packageName).execute();
+    public String getActivityInfoName() {
+        return activityInfoName;
     }
 
-    public void deleteAll() {
-        new Delete().from(AppsModel.class).execute();
+    public void setActivityInfoName(String activityInfoName) {
+        this.activityInfoName = activityInfoName;
     }
 
     @Override
@@ -177,6 +189,7 @@ public class AppsModel extends Model implements Parcelable {
         dest.writeString(this.versionCode);
         dest.writeLong(this.firstInstallTime);
         dest.writeLong(this.lastUpdateTime);
+        dest.writeString(this.activityInfoName);
     }
 
     public AppsModel() {
@@ -190,6 +203,7 @@ public class AppsModel extends Model implements Parcelable {
         this.versionCode = in.readString();
         this.firstInstallTime = in.readLong();
         this.lastUpdateTime = in.readLong();
+        this.activityInfoName = in.readString();
     }
 
     public static final Parcelable.Creator<AppsModel> CREATOR = new Parcelable.Creator<AppsModel>() {
@@ -202,11 +216,4 @@ public class AppsModel extends Model implements Parcelable {
         }
     };
 
-    public List<String> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(List<String> permissions) {
-        this.permissions = permissions;
-    }
 }

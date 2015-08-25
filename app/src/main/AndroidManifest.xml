@@ -57,14 +57,6 @@
             android:label="@string/action_settings"
             android:theme="@style/AboutActivity"/>
 
-        <receiver android:name=".global.receiver.ApplicationsReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
-                <action android:name="android.intent.action.PACKAGE_ADDED"/>
-
-                <data android:scheme="package"/>
-            </intent-filter>
-        </receiver>
         <service
             android:name=".global.service.ExecutorService"
             android:enabled="true"

@@ -6,10 +6,10 @@ import android.os.AsyncTask;
 
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.loader.AppListCreator;
-import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.ProgressModel;
 import com.fast.access.kam.global.task.impl.OnProgress;
+import com.fast.access.kam.global.task.impl.OnTaskLoading;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
@@ -58,7 +58,7 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
 
     @Override
     protected ProgressModel doInBackground(Void... params) {
-        List<AppsModel> appsModelList = new AppListCreator(context, false).getAppList();
+        List<AppsModel> appsModelList = new AppListCreator(context).getAppList();
         ProgressModel progressModel = new ProgressModel();
         progressModel.setMax(appsModelList.size());
         publishProgress(progressModel);

@@ -1,11 +1,13 @@
 package com.fast.access.kam.global.adapter;
 
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppDetailModel;
@@ -48,7 +50,12 @@ public class AppDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             AppsModel model = appDetails.get(position).getAppsModel();
             if (model != null) {
                 holder.appName.setText(model.getAppName());
-                holder.appIcon.setImageDrawable(AppHelper.getDrawable(holder.itemView.getContext(), model.getPackageName()));
+                Bitmap bitmap = AppController.getController().getIconCache().getIcon(model.getPackageName(), model.getActivityInfoName());
+                if (bitmap != null) {
+                    holder.appIcon.setImageBitmap(bitmap);
+                } else {
+                    holder.appIcon.setImageDrawable(AppHelper.getDrawable(holder.itemView.getContext(), model.getPackageName()));
+                }
                 holder.versionCode.setText("Version Code\n" + model.getVersionCode());
                 holder.versionName.setText("Version Name\n" + model.getVersionName());
                 holder.firstInstall.setText("Installtion Time\n" + AppHelper.prettifyDate(model.getFirstInstallTime()));

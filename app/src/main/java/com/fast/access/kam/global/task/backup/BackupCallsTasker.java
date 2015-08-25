@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
 
-import me.everything.providers.android.calllog.Call;
 import me.everything.providers.android.calllog.CallsProvider;
 
 /**
@@ -33,8 +32,7 @@ public class BackupCallsTasker extends AsyncTask<Void, ProgressModel, ProgressMo
     private Context context;
     private OnTaskLoading onTaskLoading;
     private OnProgress onProgress;
-    private CallsProvider callsProvider;
-    ZipFile zipFile;
+    private ZipFile zipFile;
 
     public BackupCallsTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
         this.context = context;
@@ -45,7 +43,6 @@ public class BackupCallsTasker extends AsyncTask<Void, ProgressModel, ProgressMo
     @Override
     protected ProgressModel doInBackground(Void... params) {
         InputStream stream = null;
-        String callsToSave = null;
         try {
             FileUtil fileUtil = new FileUtil();
             Gson gson = new GsonBuilder().serializeNulls()
@@ -53,6 +50,10 @@ public class BackupCallsTasker extends AsyncTask<Void, ProgressModel, ProgressMo
                     .setPrettyPrinting()
                     .create();
             zipFile = new ZipFile(fileUtil.generateZipFile("calls"));
+            if (!zipFile.isValidZipFile()) {
+                if (zipFile.getFile() != null && zipFile.getFile().exists())
+                    zipFile.getFile().delete();
+            }
             ZipParameters parameters = new ZipParameters();
             parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
             parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
@@ -60,15 +61,11 @@ public class BackupCallsTasker extends AsyncTask<Void, ProgressModel, ProgressMo
             parameters.setSourceExternalStream(true);
             CallsProvider callsProvider = new CallsProvider(context);
             if (callsProvider.getCalls() != null) {
-                for (Call calls : callsProvider.getCalls().getList()) {
-                    if (calls != null) {
-                        callsToSave += gson.toJson(calls);
-                    }
+                if (callsProvider.getCalls().getList() != null) {
+                    stream = IOUtils.toInputStream(gson.toJson(callsProvider.getCalls().getList()), Charsets.UTF_8);
+                    zipFile.addStream(stream, parameters);
+
                 }
-            }
-            if (callsToSave != null) {
-                stream = IOUtils.toInputStream(callsToSave, Charsets.UTF_8);
-                zipFile.addStream(stream, parameters);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -3,53 +3,32 @@ package com.fast.access.kam.global.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.IntentFilter;
 
-import com.fast.access.kam.AppController;
-import com.fast.access.kam.global.helper.AppHelper;
-import com.fast.access.kam.global.model.AppsModel;
-import com.fast.access.kam.global.model.EventsModel;
-
-import java.io.File;
+import com.fast.access.kam.global.loader.AppsLoader;
 
 /**
  * Created by kosh on 12/12/2014. CopyRights @ styleme
  */
 public class ApplicationsReceiver extends BroadcastReceiver {
 
-    @Override
-    public void onReceive(final Context context, final Intent intent) {
-        try {
-            Uri data = intent.getData();
-            String pkg = data != null ? data.getSchemeSpecificPart() : null;
-            boolean isReplacing = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
-            if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
-                if (!isReplacing) {
-                    if (pkg != null) {
-                        post(pkg, EventsModel.EventType.DELETE);
-                        new AppsModel().deleteByPackageName(pkg);
-                        String path = AppHelper.getCachedImagePath(context, pkg);
-                        if (path != null) {
-                            new File(path).delete();//remove image cache.
-                        }
-                    }
-                }
-            } else if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
-                if (!isReplacing) {
-                    if (pkg != null) {
-                        post(pkg, EventsModel.EventType.NEW);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private AppsLoader mLoader;
+
+    public ApplicationsReceiver(AppsLoader loader) {
+        mLoader = loader;
+        IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addDataScheme("package");
+        mLoader.getContext().registerReceiver(this, filter);
+        IntentFilter sdFilter = new IntentFilter();
+        sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
+        sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
+        mLoader.getContext().registerReceiver(this, sdFilter);
     }
 
-    private void post(String packageName, EventsModel.EventType type) {
-        EventsModel eventsModel = new EventsModel();
-        eventsModel.setPackageName(packageName);
-        eventsModel.setEventType(type);
-        AppController.getController().getBus().post(eventsModel);
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        mLoader.onContentChanged();
     }
 }

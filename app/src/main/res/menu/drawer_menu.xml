@@ -3,10 +3,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/refresh"
-            android:icon="@drawable/ic_refresh"
-            android:title="Refresh Apps"/>
-        <item
             android:id="@+id/backup"
             android:icon="@drawable/ic_backup"
             android:title="Backup"/>

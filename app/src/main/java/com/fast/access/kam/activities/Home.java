@@ -1,11 +1,12 @@
 package com.fast.access.kam.activities;
 
+import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.res.ColorStateList;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
@@ -33,8 +34,7 @@ import com.fast.access.kam.R;
 import com.fast.access.kam.activities.base.BaseActivity;
 import com.fast.access.kam.global.adapter.AppsAdapter;
 import com.fast.access.kam.global.helper.AppHelper;
-import com.fast.access.kam.global.task.ApplicationFetcher;
-import com.fast.access.kam.global.task.impl.OnAppFetching;
+import com.fast.access.kam.global.loader.AppsLoader;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.EventsModel;
 import com.fast.access.kam.global.service.ExecutorService;
@@ -51,7 +51,7 @@ import java.util.List;
 import butterknife.Bind;
 
 public class Home extends BaseActivity implements SearchView.OnQueryTextListener,
-        NavigationView.OnNavigationItemSelectedListener, OnAppFetching {
+        NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<List<AppsModel>> {
     private static final String TAG = "HOME";
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -70,7 +70,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     private GridLayoutManager manager;
     private AppsAdapter adapter;
     private final String APP_LIST = "AppsList";
-    private ApplicationFetcher appFetcher;
     private IabHelper mHelper;
     private List<String> productsList = new ArrayList<>();
 
@@ -117,13 +116,13 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
             setupDrawerContent(navigationView);
         }
         if (savedInstanceState == null) {
-            startLoading();
+            getLoaderManager().restartLoader(0, null, this);
         } else {
             if (savedInstanceState.getParcelableArrayList(APP_LIST) != null) {
                 List<AppsModel> models = savedInstanceState.getParcelableArrayList(APP_LIST);
                 adapter.insert(models);
             } else {
-                startLoading();
+                getLoaderManager().restartLoader(0, null, this);
             }
         }
         productsList.addAll(Arrays.asList(getResources().getStringArray(R.array.in_app_billing)));
@@ -133,14 +132,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
 
     private void onSuccessPaid() {
         mHelper.queryInventoryAsync(true, productsList, mReceivedInventoryListener);
-    }
-
-
-    private void startLoading() {
-        if (appFetcher == null) {
-            appFetcher = new ApplicationFetcher(this, this);
-            appFetcher.execute();
-        }
     }
 
     @Override
@@ -176,7 +167,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
             bundle.putParcelable("app", adapter.getModelList().get(position));
             Intent intent = new Intent(Home.this, AppDetailsActivity.class);
             intent.putExtras(bundle);
-//            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(Home.this, v, getString(R.string.app_icon_transition));
             startActivity(intent);
             overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         }
@@ -204,9 +194,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         switch (menuItem.getItemId()) {
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            case R.id.refresh:
-                refresh();
                 return true;
             case R.id.team:
                 startActivity(new Intent(this, TeamActivity.class));
@@ -249,17 +236,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         startService(intent);
     }
 
-    private void refresh() {
-        if (appFetcher != null) {
-            if (appFetcher.getStatus() != AsyncTask.Status.RUNNING) {
-                appFetcher = new ApplicationFetcher(this, this);
-                appFetcher.execute();
-            } else {
-                Toast.makeText(Home.this, "Please wait while loading apps.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     public void onEvent(final EventsModel eventsModel) {
         if (eventsModel != null) {
             if (eventsModel.getEventType() != null) {
@@ -267,12 +243,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                     @Override
                     public void run() {
                         switch (eventsModel.getEventType()) {
-                            case DELETE:
-                                removeByPackage(eventsModel.getPackageName());
-                                break;
-                            case NEW:
-                                refreshList(eventsModel.getPackageName());
-                                break;
                             case THEME:
                                 recreate();
                                 break;
@@ -281,45 +251,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                 });
             }
         }
-    }
-
-    private void removeByPackage(String packageName) {
-        if (adapter != null) {
-            if (packageName != null && !packageName.isEmpty()) {
-                AppsModel appsModel = new AppsModel();
-                AppsModel toRemove = null;
-                appsModel.deleteByPackageName(packageName);
-                for (AppsModel model : adapter.getModelList()) {
-                    if (model.getPackageName().equalsIgnoreCase(packageName)) {
-                        toRemove = model;
-                    }
-                }
-                if (toRemove != null) {
-                    adapter.remove(toRemove);
-                }
-            }
-        }
-    }
-
-    private void refreshList(String packageName) {
-        if (packageName != null) {
-            AppsModel appsModel = AppHelper.getNewAppDetails(this, packageName);
-            if (appsModel != null) {
-                appsModel.save(appsModel);
-                refresh();
-            }
-        }
-    }
-
-    @Override
-    public void onTaskStart() {
-        progress.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void OnTaskFinished(List<AppsModel> appsModels) {
-        progress.setVisibility(View.GONE);
-        adapter.insert(appsModels);
     }
 
     @Override
@@ -371,4 +302,21 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
             }
         }
     };
+
+    @Override
+    public Loader<List<AppsModel>> onCreateLoader(int id, Bundle args) {
+        progress.setVisibility(View.VISIBLE);
+        return new AppsLoader(this, AppController.getController().getIconCache());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<AppsModel>> loader, List<AppsModel> data) {
+        progress.setVisibility(View.GONE);
+        adapter.insert(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<AppsModel>> loader) {
+        adapter.clearAll();
+    }
 }
