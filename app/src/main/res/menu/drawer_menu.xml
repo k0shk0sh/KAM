@@ -13,70 +13,86 @@
     </group>
     <item
         android:icon="@drawable/ic_backup"
-        android:title="Backup">
+        android:title="Backup"
+        android:visible="false">
         <menu>
             <item
                 android:id="@+id/backupApps"
                 android:icon="@drawable/ic_apps"
-                android:title="Back Up Apps"/>
+                android:title="Back Up Apps"
+                android:visible="false"/>
             <item
                 android:id="@+id/backupCalls"
                 android:icon="@drawable/ic_call"
-                android:title="Back Up Calls"/>
+                android:title="Back Up Calls"
+                android:visible="false"/>
             <item
                 android:id="@+id/backupContacts"
                 android:icon="@drawable/ic_contact"
-                android:title="Back Up Contacts"/>
+                android:title="Back Up Contacts"
+                android:visible="false"/>
             <item
                 android:id="@+id/backupMsg"
                 android:icon="@drawable/ic_message"
-                android:title="Back Up Messages"/>
+                android:title="Back Up Messages"
+                android:visible="false"/>
             <item
                 android:id="@+id/backupImages"
                 android:icon="@drawable/ic_image"
-                android:title="Back Up Images"/>
+                android:title="Back Up Images"
+                android:visible="false"/>
             <item
                 android:id="@+id/backupMusic"
                 android:icon="@drawable/ic_music"
-                android:title="Back Up Music"/>
+                android:title="Back Up Music"
+                android:visible="false"/>
             <item
                 android:id="@+id/backupVideos"
                 android:icon="@drawable/ic_video"
-                android:title="Back Up Videos"/>
+                android:title="Back Up Videos"
+                android:visible="false"/>
         </menu>
     </item>
     <item
         android:icon="@drawable/ic_restore"
-        android:title="Restore">
+        android:title="Restore"
+        android:visible="false">
         <menu>
             <item
                 android:id="@+id/restoreApps"
                 android:icon="@drawable/ic_apps"
-                android:title="Restore Apps"/>
+                android:title="Restore Apps"
+                android:visible="false"/>
             <item
                 android:id="@+id/restoreCalls"
                 android:icon="@drawable/ic_call"
-                android:title="Restore Calls"/>
+                android:title="Restore Calls"
+                android:visible="false"/>
             <item
                 android:id="@+id/restoreContacts"
                 android:icon="@drawable/ic_contact"
-                android:title="Restore Contacts"/>
+                android:title="Restore Contacts"
+                android:visible="false"/>
             <item
                 android:id="@+id/restoreMsg"
                 android:icon="@drawable/ic_message"
-                android:title="Restore Messages"/>
+                android:title="Restore Messages"
+                android:visible="false"/>
             <item
                 android:id="@+id/restoreImages"
                 android:icon="@drawable/ic_image"
-                android:title="Restore Images"/>
+                android:title="Restore Images"
+                android:visible="false"/>
             <item
                 android:id="@+id/restoreMusic"
                 android:icon="@drawable/ic_music"
-                android:title="Restore Music"/>
+                android:title="Restore Music"
+                android:visible="false"/>
             <item
                 android:id="@+id/restoreVideos"
                 android:icon="@drawable/ic_video"
-                android:title="Restore Videos"/>
+                android:title="Restore Videos"
+                android:visible="false"/>
         </menu>
     </item>
 

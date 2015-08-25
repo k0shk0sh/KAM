@@ -22,6 +22,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,12 +47,15 @@ import com.fast.access.kam.widget.impl.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
 
-public class Home extends BaseActivity implements SearchView.OnQueryTextListener,
-        NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<List<AppsModel>> {
+public class Home extends BaseActivity implements SearchView.OnQueryTextListener, OnItemClickListener,
+        NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<List<AppsModel>>,
+        ActionMode.Callback {
     private static final String TAG = "HOME";
     @Bind(R.id.toolbar)
     Toolbar toolbar;
@@ -72,6 +76,8 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     private final String APP_LIST = "AppsList";
     private IabHelper mHelper;
     private List<String> productsList = new ArrayList<>();
+    private ActionMode actionMode;
+    private Map<Integer, AppsModel> intArray = new LinkedHashMap<>();
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -109,7 +115,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         if (AppHelper.isDarkTheme(this)) {
             navigationView.setItemTextColor(ColorStateList.valueOf(AppHelper.getAccentColor(this)));
         }
-        adapter = new AppsAdapter(onClick, new ArrayList<AppsModel>());
+        adapter = new AppsAdapter(this, new ArrayList<AppsModel>());
         recycler.setAdapter(adapter);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (navigationView != null) {
@@ -159,18 +165,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-
-    private OnItemClickListener onClick = new OnItemClickListener() {
-        @Override
-        public void onItemClickListener(View v, int position) {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("app", adapter.getModelList().get(position));
-            Intent intent = new Intent(Home.this, AppDetailsActivity.class);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        }
-    };
 
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -318,5 +312,62 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     @Override
     public void onLoaderReset(Loader<List<AppsModel>> loader) {
         adapter.clearAll();
+    }
+
+    @Override
+    public void onItemClickListener(View view, int position) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("app", adapter.getModelList().get(position));
+        Intent intent = new Intent(Home.this, AppDetailsActivity.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+    }
+
+    @Override
+    public void onItemLongClickListener(View view, int position) {
+        if (intArray.get(position) == null) {
+            intArray.put(position, adapter.getModelList().get(position));
+            adapter.setItemChecked(position, true);
+        } else {
+            intArray.remove(position);
+            adapter.setItemChecked(position, false);
+        }
+        if (intArray.size() != 0) {
+            if (actionMode == null) {
+                actionMode = toolbar.startActionMode(this);
+            }
+            actionMode.setTitle("Backup ( " + intArray.size() + " Apps )");
+        } else {
+            actionMode.finish();
+            actionMode = null;
+        }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        mode.getMenuInflater().inflate(R.menu.menu_action, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        if (item.getItemId() == R.id.backupAction) {
+            actionMode.finish();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        actionMode = null;
+        intArray.clear();
+        adapter.clearSelection();
     }
 }

@@ -1,12 +1,15 @@
 package com.fast.access.kam.global.adapter;
 
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.fast.access.kam.R;
@@ -26,8 +29,23 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     private List<AppsModel> searchableList;
     private List<AppsModel> modelList;
-
     private OnItemClickListener onClick;
+    private SparseBooleanArray selectedPositions = new SparseBooleanArray();
+
+    public void setItemChecked(int position, boolean isActivated) {
+        selectedPositions.put(position, isActivated);
+        notifyDataSetChanged();
+    }
+
+    public boolean isItemChecked(int position) {
+        return selectedPositions.get(position);
+    }
+
+    public void clearSelection() {
+        selectedPositions.clear();
+        notifyDataSetChanged();
+    }
+
 
     public AppsAdapter(OnItemClickListener onClick, List<AppsModel> modelList) {
         this.modelList = modelList;
@@ -42,16 +60,31 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        AppsHolder h = (AppsHolder) holder;
+        final AppsHolder h = (AppsHolder) holder;
         AppsModel app = modelList.get(position);
         if (app != null) {
-            h.itemView.setOnClickListener(new View.OnClickListener() {
+            if (isItemChecked(position)) {
+                h.iconHolder.setBackgroundColor(Color.parseColor("#50448AFF"));
+            } else {
+                h.iconHolder.setBackgroundColor(Color.TRANSPARENT);
+            }
+            h.appIcon.setImageDrawable(new BitmapDrawable(h.iconHolder.getResources(), app.getBitmap()));
+            h.iconHolder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onClick.onItemClickListener(v, position);
+                    if (selectedPositions.size() == 0)
+                        onClick.onItemClickListener(v, position);
+                    else
+                        h.iconHolder.performLongClick();
                 }
             });
-            h.appIcon.setImageDrawable(new BitmapDrawable(h.itemView.getResources(), app.getBitmap()));
+            h.iconHolder.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onClick.onItemLongClickListener(v, position);
+                    return true;
+                }
+            });
         }
     }
 
@@ -126,6 +159,8 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     static class AppsHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.appIcon)
         ImageView appIcon;
+        @Bind(R.id.iconHolder)
+        FrameLayout iconHolder;
 
         AppsHolder(View view) {
             super(view);

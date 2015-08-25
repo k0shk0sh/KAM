@@ -1,6 +1,7 @@
 <resources>
 
     <style name="AppTheme" parent="AppTheme.Base"/>
+
     <style name="DarkTheme" parent="AppTheme.Dark"/>
 
     <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
@@ -13,7 +14,9 @@
         <item name="android:itemTextAppearance">@style/MenuItemText</item>
         <item name="colorControlNormal">?colorAccent</item>
         <item name="colorControlHighlight">?colorAccent</item>
-        <item name="android:actionModeBackground">@color/primary</item>
+        <item name="actionModeBackground">@color/primary</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="AboutActivity" parent="Theme.AppCompat.Light.NoActionBar">
@@ -26,7 +29,9 @@
         <item name="android:itemTextAppearance">@style/MenuItemText</item>
         <item name="colorControlNormal">?colorAccent</item>
         <item name="colorControlHighlight">?colorAccent</item>
-        <item name="android:actionModeBackground">@color/primary</item>
+        <item name="actionModeBackground">@color/primary</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="AboutActivityDark" parent="DarkTheme">
@@ -36,7 +41,6 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
-        <item name="android:actionModeBackground">@color/primary</item>
         <item name="actionModeBackground">@color/primary</item>
         <item name="android:actionModeCloseDrawable">@drawable/ic_back</item>
         <item name="actionModeCloseDrawable">@drawable/ic_back</item>
@@ -44,6 +48,8 @@
         <item name="android:dialogTheme">@style/CustomDialogTheme</item>
         <item name="colorControlNormal">?colorAccent</item>
         <item name="colorControlHighlight">?colorAccent</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
@@ -55,12 +61,13 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
-        <item name="android:actionModeBackground">@color/primary</item>
         <item name="actionModeBackground">@color/primary</item>
         <item name="android:actionModeCloseDrawable">@drawable/ic_back</item>
         <item name="actionModeCloseDrawable">@drawable/ic_back</item>
         <item name="android:alertDialogTheme">@style/CustomDialogTheme</item>
         <item name="android:dialogTheme">@style/CustomDialogTheme</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="CustomDialogTheme" parent="Theme.AppCompat.Dialog">
