@@ -324,9 +324,13 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                 actionMode = toolbar.startActionMode(this);
             }
             actionMode.setTitle("Backup ( " + selectedApps.size() + " Apps )");
+            navigationView.getMenu().findItem(R.id.restore).setEnabled(false);
+            navigationView.getMenu().findItem(R.id.restore).setTitle("Restore (Disabled)");
         } else {
             actionMode.finish();
             actionMode = null;
+            navigationView.getMenu().findItem(R.id.restore).setEnabled(true);
+            navigationView.getMenu().findItem(R.id.restore).setTitle("Restore");
         }
     }
 
@@ -365,5 +369,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         actionMode = null;
         selectedApps.clear();
         adapter.clearSelection();
+        navigationView.getMenu().findItem(R.id.restore).setEnabled(true);
+        navigationView.getMenu().findItem(R.id.restore).setTitle("Restore");
     }
 }

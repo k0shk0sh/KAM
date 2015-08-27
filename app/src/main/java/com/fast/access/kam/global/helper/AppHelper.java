@@ -15,6 +15,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.chrisplus.rootmanager.RootManager;
 import com.chrisplus.rootmanager.container.Result;
@@ -98,6 +99,7 @@ public class AppHelper {
 
     public static void installApk(Context context, File filename) {
         Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setData(Uri.fromFile(filename));
         context.startActivity(intent);
     }
@@ -190,6 +192,18 @@ public class AppHelper {
             dateFormat = new SimpleDateFormat("dd MMM hh:mm a", Locale.getDefault());
         }
         return dateFormat.format(timestamp);
+    }
+
+    public static boolean isBackupData(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("backup_data", false);
+    }
+
+    public static boolean isRestoreData(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean("restore_data", false);
+    }
+
+    public static String extension(String file) {
+        return MimeTypeMap.getFileExtensionFromUrl(file);
     }
 
 }

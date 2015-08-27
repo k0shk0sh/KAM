@@ -77,7 +77,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                                     FileUtils.deleteDirectory(file);
                                     Toast.makeText(getActivity(), "Folder Deleted Successfully", Toast.LENGTH_LONG).show();
                                     long folderSize = AppHelper.getFolderSize(file);
-                                    findPreference("size").setSummary("File Location: " + file.getAbsolutePath() + "\nFile Size: " + Formatter.formatFileSize(getActivity(),
+                                    findPreference("size").setSummary("File Location: " + file.getAbsolutePath() + "\nFile Size: " + Formatter
+                                            .formatFileSize(getActivity(),
                                             folderSize));
                                 } catch (IOException e) {
                                     e.printStackTrace();

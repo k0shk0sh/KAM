@@ -35,6 +35,7 @@ import java.util.List;
 public class ExecutorService extends Service implements OnTaskLoading {
 
     private final int NOTIFICATION_ID = 1001;
+    private final int GENERAL_NOTIFICATION = 1002;
     private int max = 0;
     private BackupAppsTasker backupAppsTasker;
     private RestoreAppsTasker restoreAppsTasker;
@@ -114,7 +115,7 @@ public class ExecutorService extends Service implements OnTaskLoading {
         builder.setSmallIcon(R.drawable.ic_notifications);
         Notification notification = builder.build();
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(NOTIFICATION_ID, notification);
+        manager.notify(GENERAL_NOTIFICATION, notification);
     }
 
     @Override
@@ -157,23 +158,31 @@ public class ExecutorService extends Service implements OnTaskLoading {
                 List<AppsModel> appsModels = gson.fromJson(intent.getStringExtra("apps"), listType);
                 if (appsModels != null && !appsModels.isEmpty()) {
                     backupAppsTasker = new BackupAppsTasker(this, this, appsModels);
-                } else {
-                    backupAppsTasker = new BackupAppsTasker(this, this);
+                    if (backupAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
+                        backupAppsTasker.execute();
+                    }
                 }
+            } else {
+                backupAppsTasker = new BackupAppsTasker(this, this);
                 if (backupAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
                     backupAppsTasker.execute();
                 }
-            } else if (action.equalsIgnoreCase(OperationType.RESTORE.name())) {
-                if (backupAppsTasker != null && backupAppsTasker.getStatus() == AsyncTask.Status.RUNNING) {
-                    Toast.makeText(ExecutorService.this, "Please Wait, while backing up", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (restoreAppsTasker == null) {
-                    restoreAppsTasker = new RestoreAppsTasker(this);
-                }
-                if (restoreAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
-                    restoreAppsTasker.execute();
-                }
+            }
+        } else if (action.equalsIgnoreCase(OperationType.RESTORE.name())) {
+            if (backupAppsTasker != null && backupAppsTasker.getStatus() == AsyncTask.Status.RUNNING) {
+                Toast.makeText(ExecutorService.this, "Please Wait, while backing up", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (restoreAppsTasker != null && restoreAppsTasker.getStatus() == AsyncTask.Status.RUNNING) {
+                Toast.makeText(ExecutorService.this, "Please Wait, while restoring", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (restoreAppsTasker == null) {
+                restoreAppsTasker = new RestoreAppsTasker(this);
+            }
+            if (restoreAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
+                restoreAppsTasker.execute(this);
+                Toast.makeText(ExecutorService.this, "Running", Toast.LENGTH_SHORT).show();
             }
         }
     }

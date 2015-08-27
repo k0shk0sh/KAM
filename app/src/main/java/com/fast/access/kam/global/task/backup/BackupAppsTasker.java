@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 
 import com.chrisplus.rootmanager.RootManager;
 import com.chrisplus.rootmanager.container.Result;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.loader.AppListCreator;
 import com.fast.access.kam.global.model.AppsModel;
@@ -29,6 +30,7 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
     private Context context;
     private OnTaskLoading onTaskLoading;
     private ZipFile zipFile;
+    private ZipFile zipData;
     private List<AppsModel> appsModels;
 
     public BackupAppsTasker(Context context, OnTaskLoading onTaskLoading) {
@@ -80,44 +82,51 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
         publishProgress(progressModel);
         try {
             FileUtil fileUtil = new FileUtil();
-            zipFile = new ZipFile(fileUtil.getBaseFolderName() + "backup.zip");
+            File zipFileName = new File(fileUtil.getBaseFolderName() + "backup.zip");
+            File zipFileData = new File(fileUtil.getBaseFolderName() + "data.zip");
+            if (zipFileData.exists()) {
+                FileUtils.forceDelete(zipFileData);
+            }
+            if (zipFileName.exists()) {
+                FileUtils.forceDelete(zipFileName);
+            }
+            zipFile = new ZipFile(zipFileName);
+            zipData = new ZipFile(zipFileData);
+            if (!zipData.isValidZipFile()) {
+                if (zipData.getFile() != null && zipData.getFile().exists())
+                    zipData.getFile().delete();
+            }
             if (!zipFile.isValidZipFile()) {
                 if (zipFile.getFile() != null && zipFile.getFile().exists())
                     zipFile.getFile().delete();
             }
             int count = 0;
-            boolean obtained = RootManager.getInstance().obtainPermission();
+            boolean withData = AppHelper.isBackupData(context);
+            if (withData) RootManager.getInstance().obtainPermission();
             for (AppsModel model : appsModelList) {
                 if (model != null) {
                     ApplicationInfo packageInfo = context.getPackageManager().getApplicationInfo(model.getPackageName(), 0);
                     File file = new File(packageInfo.sourceDir);
                     if (file.exists()) {
                         count++;
-                        File dataFolder = new File(packageInfo.dataDir);
-                        File folderName = fileUtil.generateFolder(model.getAppName());
-                        Result result = RootManager.getInstance().runCommand("cp -r " + dataFolder + " " + folderName + "\n");
-                        RootManager.getInstance().runCommand("cp -r " + file + " " + folderName + "\n");
+                        File fileToSave = fileUtil.generateFile(model.getAppName());
                         progressModel = new ProgressModel();
                         progressModel.setProgress(count);
-                        progressModel.setFileName(model.getAppName());
+                        progressModel.setFileName(fileToSave.getName());
                         publishProgress(progressModel);
                         ZipParameters parameters = new ZipParameters();
                         parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
                         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
-                        if (result.getStatusCode() == 0) {
-                            if (folderName.exists()) {
-                                zipFile.addFolder(folderName, parameters);
-                            }
-                        } else {
-                            parameters.setSourceExternalStream(true);
-                            parameters.setFileNameInZip(model.getAppName());
-                            zipFile.addFile(file, parameters);
-                        }
+                        parameters.setSourceExternalStream(true);
+                        parameters.setFileNameInZip(fileToSave.getName());
+                        zipFile.addFile(file, parameters);
                         progressModel = new ProgressModel();
                         progressModel.setProgress(count);
-                        progressModel.setFileName(model.getAppName());
+                        progressModel.setFileName(fileToSave.getName());
                         publishProgress(progressModel);
-                        FileUtils.forceDelete(folderName);
+                        if (withData) {
+                            withData(model, packageInfo, file, fileUtil, count);
+                        }
                     }
                 }
             }
@@ -128,6 +137,30 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
 
         return null;
     }
+
+    private void withData(AppsModel model, ApplicationInfo packageInfo, File file, FileUtil fileUtil, int count) throws Exception {
+        File dataFolder = new File(packageInfo.dataDir);
+        File dataFile = new File(fileUtil.getBaseFolderName() + model.getPackageName());
+        Result result = RootManager.getInstance().runCommand("cp -r " + dataFolder + " " + fileUtil.getBaseFolderName() + "\n");
+        ProgressModel progressModel = new ProgressModel();
+        progressModel.setProgress(count);
+        progressModel.setFileName(model.getAppName());
+        publishProgress(progressModel);
+        ZipParameters parameters = new ZipParameters();
+        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
+        if (result.getStatusCode() == 0 || result.getStatusCode() == 90) {
+            if (dataFile.exists()) {
+                zipData.addFolder(dataFile, parameters);
+                FileUtils.deleteDirectory(dataFile);
+            }
+        }
+        progressModel = new ProgressModel();
+        progressModel.setProgress(count);
+        progressModel.setFileName(model.getAppName());
+        publishProgress(progressModel);
+    }
+
 
     private ProgressModel onError(String msg) {
         ProgressModel error = new ProgressModel();
@@ -141,6 +174,13 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
                 zipFile.getProgressMonitor().cancelAllTasks();
                 if (zipFile.getFile() != null && zipFile.getFile().exists())
                     zipFile.getFile().delete();
+            }
+        }
+        if (zipData != null) {
+            if (zipData.getProgressMonitor() != null) {
+                zipData.getProgressMonitor().cancelAllTasks();
+                if (zipData.getFile() != null && zipData.getFile().exists())
+                    zipData.getFile().delete();
             }
         }
         cancel(true);

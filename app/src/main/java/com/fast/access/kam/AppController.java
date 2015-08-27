@@ -1,6 +1,7 @@
 package com.fast.access.kam;
 
-import com.activeandroid.app.Application;
+import android.app.Application;
+
 import com.crashlytics.android.Crashlytics;
 import com.fast.access.kam.activities.Home;
 import com.fast.access.kam.global.loader.cache.IconCache;

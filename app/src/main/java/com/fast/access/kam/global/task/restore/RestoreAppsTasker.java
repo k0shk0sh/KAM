@@ -4,14 +4,15 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.chrisplus.rootmanager.RootManager;
 import com.chrisplus.rootmanager.container.Result;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
-import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import com.fast.access.kam.global.model.ProgressModel;
-
+import com.fast.access.kam.global.task.impl.OnTaskLoading;
 
 import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 
 import java.io.File;
@@ -25,6 +26,7 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
     private OnTaskLoading onTaskLoading;
 
     private ZipFile zFile;
+    private ZipFile dataZip;
 
     public RestoreAppsTasker(OnTaskLoading onTaskLoading) {
         this.onTaskLoading = onTaskLoading;
@@ -55,9 +57,11 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
 
     @Override
     protected ProgressModel doInBackground(Context... params) {
-        FileUtil fileUtil = new FileUtil();
-        File zipFile = new File(fileUtil.getBaseFolderName() + "backup.zip");
         try {
+            FileUtil fileUtil = new FileUtil();
+            File zipFile = new File(fileUtil.getBaseFolderName() + "backup.zip");
+            boolean withData = AppHelper.isRestoreData(params[0]);
+            if (withData) RootManager.getInstance().obtainPermission();
             zFile = new ZipFile(zipFile);
             List fileHeaderList = zFile.getFileHeaders();
             ProgressModel progressModel = new ProgressModel();
@@ -81,6 +85,9 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
                 publishProgress(progressModel);
             }
             zipFile.delete();
+            if (withData) {
+                withData();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             ProgressModel error = new ProgressModel();
@@ -90,11 +97,43 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
         return null;
     }
 
+    private void withData() throws ZipException {
+        FileUtil fileUtil = new FileUtil();
+        File dataFile = new File(fileUtil.getBaseFolderName() + "data.zip");
+        dataZip = new ZipFile(dataFile);
+        if (dataZip.getFileHeaders() != null) {
+            List fileHeaderList = dataZip.getFileHeaders();
+            ProgressModel progressModel = new ProgressModel();
+            progressModel.setMax(fileHeaderList.size());
+            publishProgress(progressModel);
+            for (int i = 0; i < fileHeaderList.size(); i++) {
+                FileHeader header = (FileHeader) fileHeaderList.get(i);
+                if (header != null) {
+                    RootManager.getInstance().remount("/data/data/", "rw");
+                    Result result = RootManager.getInstance().runCommand(" mount -o rw,remount -t yaffs2 /data/data\nmkdir " + "/data/data/" + header
+                            .getFileName() + "\ncp -r " + header.getFileName() + " " + "/data/data/");
+                    Log.e("Result", result.getMessage() + " " + result.getStatusCode() + "  " + result.getResult());
+                    progressModel.setProgress(i);
+                    progressModel.setFileName(header.getFileName());
+                    publishProgress(progressModel);
+                }
+            }
+            RootManager.getInstance().remount("/data/data/", "ro");
+            dataFile.delete();
+        }
+    }
+
     public void onStop() {
         if (zFile != null) {
             if (zFile.getProgressMonitor() != null) {
                 zFile.getProgressMonitor().cancelAllTasks();
             }
         }
+        if (dataZip != null) {
+            if (dataZip.getProgressMonitor() != null) {
+                dataZip.getProgressMonitor().cancelAllTasks();
+            }
+        }
+        cancel(true);
     }
 }

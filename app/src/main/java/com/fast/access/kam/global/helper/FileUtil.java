@@ -16,6 +16,10 @@ public class FileUtil {
     private String TAG = this.getClass().getSimpleName();
     private final String folderName = Environment.getExternalStorageDirectory() + "/KAM/";
 
+    public FileUtil() {
+        generateDefaultFile();
+    }
+
     public File folderName() {
         File file = new File(folderName);
         if (!file.exists())
@@ -76,6 +80,13 @@ public class FileUtil {
             }
         }
         return new File(folderName(), path + ".apk");
+    }
+
+    private void generateDefaultFile() {
+        File file = new File(folderName);
+        if (!file.exists()) {
+            file.mkdir();
+        }
     }
 
     public File generateZipFile(String name) {
