@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.os.AsyncTask;
 
 import com.fast.access.kam.global.helper.FileUtil;
-import com.fast.access.kam.global.loader.AppListCreator;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.ProgressModel;
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
@@ -20,19 +19,14 @@ import java.util.List;
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved
  */
-public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressModel> {
+public class BackupSelectedAppsTasker extends AsyncTask<Void, ProgressModel, ProgressModel> {
 
     private Context context;
     private OnTaskLoading onTaskLoading;
     private ZipFile zipFile;
     private List<AppsModel> appsModels;
 
-    public BackupAppsTasker(Context context, OnTaskLoading onTaskLoading) {
-        this.context = context;
-        this.onTaskLoading = onTaskLoading;
-    }
-
-    public BackupAppsTasker(Context context, OnTaskLoading onTaskLoading, List<AppsModel> appsModels) {
+    public BackupSelectedAppsTasker(Context context, OnTaskLoading onTaskLoading, List<AppsModel> appsModels) {
         this.context = context;
         this.onTaskLoading = onTaskLoading;
         this.appsModels = appsModels;
@@ -62,21 +56,13 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
 
     @Override
     protected ProgressModel doInBackground(Void... params) {
-        List<AppsModel> appsModelList;
-        if (appsModels == null) {
-            appsModelList = new AppListCreator(context).getAppList();
-        } else {
-            appsModelList = appsModels;
-        }
-        if (appsModelList == null) {
-            return onError("Apps Are Empty, Please select ones");
-        }
+        List<AppsModel> appsModelList = appsModels;
         ProgressModel progressModel = new ProgressModel();
         progressModel.setMax(appsModelList.size());
         publishProgress(progressModel);
         try {
             FileUtil fileUtil = new FileUtil();
-            zipFile = new ZipFile(fileUtil.getBaseFolderName() + "backup.zip");
+            zipFile = new ZipFile(fileUtil.getBaseFolderName() + "selectedApps.zip");
             if (!zipFile.isValidZipFile()) {
                 if (zipFile.getFile() != null && zipFile.getFile().exists())
                     zipFile.getFile().delete();
@@ -108,16 +94,12 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return onError(e.getMessage());
+            ProgressModel error = new ProgressModel();
+            error.setMsg(e.getMessage());
+            return error;
         }
 
         return null;
-    }
-
-    private ProgressModel onError(String msg) {
-        ProgressModel error = new ProgressModel();
-        error.setMsg(msg);
-        return error;
     }
 
     public void onStop() {

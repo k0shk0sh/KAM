@@ -1,15 +1,13 @@
 package com.fast.access.kam.global.model;
 
+import com.fast.access.kam.global.model.helper.OperationType;
+
 import java.util.Map;
 
 /**
  * Created by Kosh on 8/26/2015. copyrights are reserved
  */
 public class ServiceSubscriber {
-
-    public enum OperationType {
-        BACKUP, RESTORE, CUSTOM_BACKUP
-    }
 
     private OperationType operationType;
 

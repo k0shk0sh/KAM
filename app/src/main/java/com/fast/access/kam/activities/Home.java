@@ -38,18 +38,21 @@ import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.loader.AppsLoader;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.EventsModel;
+import com.fast.access.kam.global.model.helper.OperationType;
 import com.fast.access.kam.global.service.ExecutorService;
 import com.fast.access.kam.global.util.IabHelper;
 import com.fast.access.kam.global.util.IabResult;
 import com.fast.access.kam.global.util.Inventory;
 import com.fast.access.kam.global.util.Purchase;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.Bind;
 
@@ -76,7 +79,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     private IabHelper mHelper;
     private List<String> productsList = new ArrayList<>();
     private ActionMode actionMode;
-    private Map<Integer, AppsModel> intArray = new LinkedHashMap<>();
+    private HashMap<Integer, AppsModel> selectedApps = new LinkedHashMap<>();
 
     @Override
     protected int layout() {
@@ -175,10 +178,10 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                 startActivity(new Intent(this, TeamActivity.class));
                 return true;
             case R.id.backup:
-                startService(true);
+                startOperation(OperationType.BACKUP);
                 return true;
             case R.id.restore:
-                startService(false);
+                startOperation(OperationType.RESTORE);
                 return true;
             case R.id.donate:
                 final List<String> titles = new ArrayList<>();
@@ -207,9 +210,9 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         }
     }
 
-    private void startService(boolean isBack) {
+    private void startOperation(OperationType type) {
         Intent intent = new Intent(this, ExecutorService.class);
-        intent.putExtra("isBack", isBack ? "backup" : "restore");
+        intent.putExtra("operationType", type.name());
         startService(intent);
     }
 
@@ -309,18 +312,18 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
 
     @Override
     public void onItemLongClickListener(View view, int position) {
-        if (intArray.get(position) == null) {
-            intArray.put(position, adapter.getModelList().get(position));
+        if (selectedApps.get(position) == null) {
+            selectedApps.put(position, adapter.getModelList().get(position));
             adapter.setItemChecked(position, true);
         } else {
-            intArray.remove(position);
+            selectedApps.remove(position);
             adapter.setItemChecked(position, false);
         }
-        if (intArray.size() != 0) {
+        if (selectedApps.size() != 0) {
             if (actionMode == null) {
                 actionMode = toolbar.startActionMode(this);
             }
-            actionMode.setTitle("Backup ( " + intArray.size() + " Apps )");
+            actionMode.setTitle("Backup ( " + selectedApps.size() + " Apps )");
         } else {
             actionMode.finish();
             actionMode = null;
@@ -345,6 +348,12 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         if (item.getItemId() == R.id.backupAction) {
+            Intent intent = new Intent(this, ExecutorService.class);
+            intent.putExtra("operationType", OperationType.SELECTED_APPS.name());
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
+            Log.e(TAG, gson.toJson(selectedApps.values()));
+            intent.putExtra("apps", gson.toJson(selectedApps.values()));
+            startService(intent);
             actionMode.finish();
             return true;
         }
@@ -354,7 +363,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         actionMode = null;
-        intArray.clear();
+        selectedApps.clear();
         adapter.clearSelection();
     }
 }

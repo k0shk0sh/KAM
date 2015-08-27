@@ -9,6 +9,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.fast.access.kam.global.loader.cache.IconCache;
+import com.google.gson.annotations.Expose;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,13 +18,22 @@ import java.util.List;
  * Created by Kosh on 8/16/2015. copyrights are reserved
  */
 public class AppsModel implements Parcelable {
+    @Expose
     private String appName;
+    @Expose
     private String packageName;
+    @Expose
     private String filePath;
+    @Expose
     private String versionName;
+    @Expose
     private String versionCode;
+    @Expose
     private long firstInstallTime;
+    @Expose
     private long lastUpdateTime;
+    @Expose
+    private String activityInfoName;
     private Bitmap bitmap;
     private ComponentName componentName;
     private List<String> permissions;
@@ -31,7 +41,6 @@ public class AppsModel implements Parcelable {
     private PackageManager pm;
     private ResolveInfo info;
     private HashMap<Object, CharSequence> labelCache;
-    private String activityInfoName;
 
     public AppsModel(PackageManager pm, ResolveInfo info, IconCache iconCache, HashMap<Object, CharSequence> labelCache) {
         this.packageName = info.activityInfo.applicationInfo.packageName;

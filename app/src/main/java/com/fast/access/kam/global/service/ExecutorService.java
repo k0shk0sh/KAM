@@ -14,12 +14,20 @@ import android.widget.Toast;
 
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.helper.AppHelper;
+import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.ProgressModel;
+import com.fast.access.kam.global.model.helper.OperationType;
 import com.fast.access.kam.global.task.backup.BackupAppsTasker;
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import com.fast.access.kam.global.task.restore.RestoreAppsTasker;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Kosh on 8/21/2015. copyrights are reserved
@@ -48,8 +56,8 @@ public class ExecutorService extends Service implements OnTaskLoading {
         if (intent != null) {
             if (intent.getStringExtra("cancel") != null) {
                 cancelIfRunning();
-            } else if (intent.getStringExtra("isBack") != null) {
-                handleIntent(intent.getStringExtra("isBack"));
+            } else if (intent.getStringExtra("operationType") != null) {
+                handleIntent(intent);
                 return START_STICKY;
             }
         }
@@ -132,28 +140,40 @@ public class ExecutorService extends Service implements OnTaskLoading {
         stopSelf();
     }
 
-    private void handleIntent(String action) {
-        if (action.equalsIgnoreCase("backup")) {
+    private void handleIntent(Intent intent) {
+        String action = intent.getStringExtra("operationType");
+        if (action.equalsIgnoreCase(OperationType.BACKUP.name()) || action.equalsIgnoreCase(OperationType.SELECTED_APPS.name())) {
             if (restoreAppsTasker != null && restoreAppsTasker.getStatus() == AsyncTask.Status.RUNNING) {
                 Toast.makeText(ExecutorService.this, "Please Wait, while restoring", Toast.LENGTH_LONG).show();
                 return;
             }
-            if (backupAppsTasker == null) {
-                backupAppsTasker = new BackupAppsTasker(this, this);
-            }
-            if (backupAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
-                backupAppsTasker.execute();
-            }
-        } else if (action.equalsIgnoreCase("restore")) {
             if (backupAppsTasker != null && backupAppsTasker.getStatus() == AsyncTask.Status.RUNNING) {
-                Toast.makeText(ExecutorService.this, "Please Wait, while backing up", Toast.LENGTH_LONG).show();
+                Toast.makeText(ExecutorService.this, "Please Wait, while operation is running", Toast.LENGTH_LONG).show();
                 return;
             }
-            if (restoreAppsTasker == null) {
-                restoreAppsTasker = new RestoreAppsTasker(this);
-            }
-            if (restoreAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
-                restoreAppsTasker.execute();
+            if (intent.getStringExtra("apps") != null) {
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+                Type listType = new TypeToken<ArrayList<AppsModel>>() {}.getType();
+                List<AppsModel> appsModels = gson.fromJson(intent.getStringExtra("apps"), listType);
+                if (appsModels != null && !appsModels.isEmpty()) {
+                    backupAppsTasker = new BackupAppsTasker(this, this, appsModels);
+                } else {
+                    backupAppsTasker = new BackupAppsTasker(this, this);
+                }
+                if (backupAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
+                    backupAppsTasker.execute();
+                }
+            } else if (action.equalsIgnoreCase(OperationType.RESTORE.name())) {
+                if (backupAppsTasker != null && backupAppsTasker.getStatus() == AsyncTask.Status.RUNNING) {
+                    Toast.makeText(ExecutorService.this, "Please Wait, while backing up", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (restoreAppsTasker == null) {
+                    restoreAppsTasker = new RestoreAppsTasker(this);
+                }
+                if (restoreAppsTasker.getStatus() != AsyncTask.Status.RUNNING) {
+                    restoreAppsTasker.execute();
+                }
             }
         }
     }
