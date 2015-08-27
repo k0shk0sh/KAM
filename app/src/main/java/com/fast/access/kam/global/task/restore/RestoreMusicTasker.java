@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.fast.access.kam.global.model.ProgressModel;
-import com.fast.access.kam.global.task.impl.OnProgress;
+
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
 
 /**
@@ -14,12 +14,12 @@ public class RestoreMusicTasker extends AsyncTask<Void, ProgressModel, ProgressM
 
     private Context context;
     private OnTaskLoading onTaskLoading;
-    private OnProgress onProgress;
 
-    public RestoreMusicTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
+
+    public RestoreMusicTasker(Context context, OnTaskLoading onTaskLoading) {
         this.context = context;
         this.onTaskLoading = onTaskLoading;
-        this.onProgress = onProgress;
+
     }
 
     @Override

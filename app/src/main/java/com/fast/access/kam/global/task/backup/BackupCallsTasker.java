@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.model.ProgressModel;
-import com.fast.access.kam.global.task.impl.OnProgress;
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -31,13 +30,11 @@ public class BackupCallsTasker extends AsyncTask<Void, ProgressModel, ProgressMo
     private final String TAG = "BackupCallsTasker";
     private Context context;
     private OnTaskLoading onTaskLoading;
-    private OnProgress onProgress;
     private ZipFile zipFile;
 
-    public BackupCallsTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
+    public BackupCallsTasker(Context context, OnTaskLoading onTaskLoading) {
         this.context = context;
         this.onTaskLoading = onTaskLoading;
-        this.onProgress = onProgress;
     }
 
     @Override

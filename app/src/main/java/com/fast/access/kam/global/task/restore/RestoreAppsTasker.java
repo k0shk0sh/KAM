@@ -9,7 +9,7 @@ import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import com.fast.access.kam.global.model.ProgressModel;
-import com.fast.access.kam.global.task.impl.OnProgress;
+
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
@@ -23,12 +23,12 @@ import java.util.List;
 public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, ProgressModel> {
 
     private OnTaskLoading onTaskLoading;
-    private OnProgress onProgress;
+
     private ZipFile zFile;
 
-    public RestoreAppsTasker(OnTaskLoading onTaskLoading, OnProgress onProgress) {
+    public RestoreAppsTasker(OnTaskLoading onTaskLoading) {
         this.onTaskLoading = onTaskLoading;
-        this.onProgress = onProgress;
+
     }
 
     @Override
@@ -40,7 +40,7 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
     @Override
     protected void onProgressUpdate(ProgressModel... values) {
         super.onProgressUpdate(values);
-        onProgress.onProgressUpdate(values[0], false);
+        onTaskLoading.onProgressUpdate(values[0], false);
     }
 
     @Override

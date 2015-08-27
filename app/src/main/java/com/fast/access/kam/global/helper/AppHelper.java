@@ -155,29 +155,6 @@ public class AppHelper {
         return size;
     }
 
-    public static int[] colorChoice(Context context) {
-
-        int[] mColorChoices = null;
-        String[] color_array = context.getResources().getStringArray(R.array.default_color_choice_values);
-
-        if (color_array != null && color_array.length > 0) {
-            mColorChoices = new int[color_array.length];
-            for (int i = 0; i < color_array.length; i++) {
-                mColorChoices[i] = Color.parseColor(color_array[i]);
-            }
-        }
-        return mColorChoices;
-    }
-
-    /**
-     * Parse whiteColor
-     *
-     * @return
-     */
-    public static int parseWhiteColor() {
-        return Color.parseColor("#FFFFFF");
-    }
-
     public static boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
@@ -205,13 +182,6 @@ public class AppHelper {
         return Color.argb(a, Math.max((int) (r * tran), 0), Math.max((int) (g * tran), 0), Math.max((int) (b * tran), 0));
     }
 
-    public static String getCachedImagePath(Context context, String packageName) {
-        if (context.getExternalCacheDir() != null)
-            return context.getExternalCacheDir().getAbsolutePath() + File.pathSeparator + packageName + ".png";
-        else
-            return null;
-    }
-
     public static String prettifyDate(long timestamp) {
         SimpleDateFormat dateFormat;
         if (DateUtils.isToday(timestamp)) {
@@ -221,4 +191,5 @@ public class AppHelper {
         }
         return dateFormat.format(timestamp);
     }
+
 }

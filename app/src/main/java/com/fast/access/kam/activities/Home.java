@@ -7,8 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -73,19 +73,10 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     ProgressBar progress;
     private GridLayoutManager manager;
     private AppsAdapter adapter;
-    private final String APP_LIST = "AppsList";
     private IabHelper mHelper;
     private List<String> productsList = new ArrayList<>();
     private ActionMode actionMode;
     private Map<Integer, AppsModel> intArray = new LinkedHashMap<>();
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (adapter != null && adapter.getModelList() != null) {
-            outState.putParcelableArrayList(APP_LIST, (ArrayList<? extends Parcelable>) adapter.getModelList());
-        }
-    }
 
     @Override
     protected int layout() {
@@ -121,16 +112,7 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
-        if (savedInstanceState == null) {
-            getLoaderManager().restartLoader(0, null, this);
-        } else {
-            if (savedInstanceState.getParcelableArrayList(APP_LIST) != null) {
-                List<AppsModel> models = savedInstanceState.getParcelableArrayList(APP_LIST);
-                adapter.insert(models);
-            } else {
-                getLoaderManager().restartLoader(0, null, this);
-            }
-        }
+        getLoaderManager().restartLoader(0, null, this);
         productsList.addAll(Arrays.asList(getResources().getStringArray(R.array.in_app_billing)));
         mHelper = new IabHelper(this, getString(R.string.base64));
         mHelper.startSetup(mPurchaseFinishedListener);
@@ -207,7 +189,8 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                         .setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mHelper.launchPurchaseFlow(Home.this, productsList.get(which), 2001, onIabPurchaseFinishedListener, titles.get(which));
+                                mHelper.launchPurchaseFlow(Home.this, productsList.get(which), 2001, onIabPurchaseFinishedListener, titles.get
+                                        (which));
                             }
                         }).setNegativeButton("Cancel", null).show();
 
@@ -352,7 +335,11 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // i f***ing  hate android sometimes.
+            getWindow().setStatusBarColor(AppHelper.getPrimaryDarkColor(AppHelper.getPrimaryColor(Home.this)));
+        }
+        return true;
     }
 
     @Override

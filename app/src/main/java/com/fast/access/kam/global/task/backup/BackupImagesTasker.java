@@ -6,7 +6,7 @@ import android.os.Environment;
 
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.model.ProgressModel;
-import com.fast.access.kam.global.task.impl.OnProgress;
+
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
 
 import net.lingala.zip4j.core.ZipFile;
@@ -20,13 +20,13 @@ public class BackupImagesTasker extends AsyncTask<Void, ProgressModel, ProgressM
 
     private Context context;
     private OnTaskLoading onTaskLoading;
-    private OnProgress onProgress;
+
     private ZipFile zipFile;
 
-    public BackupImagesTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
+    public BackupImagesTasker(Context context, OnTaskLoading onTaskLoading) {
         this.context = context;
         this.onTaskLoading = onTaskLoading;
-        this.onProgress = onProgress;
+
     }
 
     @Override

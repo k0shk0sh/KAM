@@ -8,7 +8,6 @@ import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.loader.AppListCreator;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.global.model.ProgressModel;
-import com.fast.access.kam.global.task.impl.OnProgress;
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
 
 import net.lingala.zip4j.core.ZipFile;
@@ -25,13 +24,11 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
 
     private Context context;
     private OnTaskLoading onTaskLoading;
-    private OnProgress onProgress;
     private ZipFile zipFile;
 
-    public BackupAppsTasker(Context context, OnTaskLoading onTaskLoading, OnProgress onProgress) {
+    public BackupAppsTasker(Context context, OnTaskLoading onTaskLoading) {
         this.context = context;
         this.onTaskLoading = onTaskLoading;
-        this.onProgress = onProgress;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
     @Override
     protected void onProgressUpdate(ProgressModel... values) {
         super.onProgressUpdate(values);
-        onProgress.onProgressUpdate(values[0], true);
+        onTaskLoading.onProgressUpdate(values[0], true);
     }
 
     @Override
@@ -112,5 +109,6 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
                     zipFile.getFile().delete();
             }
         }
+        cancel(true);
     }
 }

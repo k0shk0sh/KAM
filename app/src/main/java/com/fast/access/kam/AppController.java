@@ -3,9 +3,7 @@ package com.fast.access.kam;
 import com.activeandroid.app.Application;
 import com.crashlytics.android.Crashlytics;
 import com.fast.access.kam.activities.Home;
-import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.loader.cache.IconCache;
-import com.fast.access.kam.global.task.RootChecker;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import de.greenrobot.event.EventBus;
@@ -27,9 +25,6 @@ public class AppController extends Application {
         CustomActivityOnCrash.install(this);
         Crashlytics crashlytics = new Crashlytics.Builder().disabled(BuildConfig.DEBUG).build();
         Fabric.with(this, crashlytics);
-        if (!AppHelper.isRootEnabled(this)) {
-            new RootChecker().execute(this);
-        }
         mIconCache = new IconCache(this);
     }
 
@@ -41,12 +36,8 @@ public class AppController extends Application {
         return EventBus.getDefault();
     }
 
-
     public IconCache getIconCache() {
         return mIconCache;
     }
 
-    public void setIconCache(IconCache iconCache) {
-        mIconCache = iconCache;
-    }
 }

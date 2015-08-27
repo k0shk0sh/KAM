@@ -14,6 +14,7 @@ package com.fast.access.kam.widget.colorpicker.internal;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.fast.access.kam.R;
-import com.fast.access.kam.global.helper.AppHelper;
 
 /**
  * MenuAdapter
@@ -151,7 +151,7 @@ public class NsMenuAdapter extends ArrayAdapter<NsMenuItemModel> {
                 }
 
 
-                if (item != null && viewHolder != null) {
+                if (item != null) {
                     if (viewHolder.textHolder != null)
                         viewHolder.textHolder.setText(item.title);
 
@@ -161,7 +161,7 @@ public class NsMenuAdapter extends ArrayAdapter<NsMenuItemModel> {
                             viewHolder.squareHolder.setBackgroundColor(item.colorSquare);
                         } else {
                             //viewHolder.imageHolder.setVisibility(View.GONE);
-                            viewHolder.squareHolder.setBackgroundColor(AppHelper.parseWhiteColor());
+                            viewHolder.squareHolder.setBackgroundColor(Color.parseColor("#FFFFFF"));
                         }
                     }
                 }
