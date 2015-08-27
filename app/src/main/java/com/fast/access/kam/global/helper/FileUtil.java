@@ -61,7 +61,6 @@ public class FileUtil {
         }
     }
 
-
     public static String generateFileName(String packageName) {
         return getPng(packageName);
     }
@@ -90,6 +89,18 @@ public class FileUtil {
             }
         }
         return new File(folderName(), name + ".zip");
+    }
+
+    public File generateFolder(String name) {
+        File file = new File(folderName);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        File folderName = new File(file, name);
+        if (!folderName.exists()) {
+            folderName.mkdirs();
+        }
+        return folderName;
     }
 
     public static String getCacheFile(Context context, String packageName) {

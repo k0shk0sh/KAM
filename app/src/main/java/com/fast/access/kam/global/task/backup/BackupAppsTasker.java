@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.AsyncTask;
 
+import com.chrisplus.rootmanager.RootManager;
+import com.chrisplus.rootmanager.container.Result;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.loader.AppListCreator;
 import com.fast.access.kam.global.model.AppsModel;
@@ -13,6 +15,8 @@ import com.fast.access.kam.global.task.impl.OnTaskLoading;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.util.List;
@@ -82,27 +86,38 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
                     zipFile.getFile().delete();
             }
             int count = 0;
+            boolean obtained = RootManager.getInstance().obtainPermission();
             for (AppsModel model : appsModelList) {
                 if (model != null) {
                     ApplicationInfo packageInfo = context.getPackageManager().getApplicationInfo(model.getPackageName(), 0);
-                    File fileToSave = fileUtil.generateFile(model.getAppName());
                     File file = new File(packageInfo.sourceDir);
                     if (file.exists()) {
                         count++;
+                        File dataFolder = new File(packageInfo.dataDir);
+                        File folderName = fileUtil.generateFolder(model.getAppName());
+                        Result result = RootManager.getInstance().runCommand("cp -r " + dataFolder + " " + folderName + "\n");
+                        RootManager.getInstance().runCommand("cp -r " + file + " " + folderName + "\n");
                         progressModel = new ProgressModel();
                         progressModel.setProgress(count);
-                        progressModel.setFileName(fileToSave.getName());
+                        progressModel.setFileName(model.getAppName());
                         publishProgress(progressModel);
                         ZipParameters parameters = new ZipParameters();
                         parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
                         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
-                        parameters.setSourceExternalStream(true);
-                        parameters.setFileNameInZip(fileToSave.getName());
-                        zipFile.addFile(file, parameters);
+                        if (result.getStatusCode() == 0) {
+                            if (folderName.exists()) {
+                                zipFile.addFolder(folderName, parameters);
+                            }
+                        } else {
+                            parameters.setSourceExternalStream(true);
+                            parameters.setFileNameInZip(model.getAppName());
+                            zipFile.addFile(file, parameters);
+                        }
                         progressModel = new ProgressModel();
                         progressModel.setProgress(count);
-                        progressModel.setFileName(fileToSave.getName());
+                        progressModel.setFileName(model.getAppName());
                         publishProgress(progressModel);
+                        FileUtils.forceDelete(folderName);
                     }
                 }
             }
