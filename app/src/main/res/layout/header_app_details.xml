@@ -16,11 +16,10 @@
         <ImageView
             android:id="@+id/appIcon"
             xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="@dimen/image_width"
-            android:layout_height="@dimen/image_width"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
             android:layout_gravity="center"
-            android:adjustViewBounds="true"
-            android:transitionName="@string/app_icon_transition"/>
+            android:adjustViewBounds="true"/>
 
         <com.fast.access.kam.widget.FontTextView
             android:id="@+id/appName"
@@ -44,7 +43,6 @@
 
             <com.fast.access.kam.widget.FontTextView
                 android:id="@+id/versionName"
-                android:lineSpacingExtra="4dp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -52,6 +50,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:lineSpacingExtra="4dp"
                 android:maxLines="2"
                 android:textColor="@color/white"
                 android:textSize="15dp"/>
@@ -62,10 +61,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="5dp"
-                android:lineSpacingExtra="4dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:lineSpacingExtra="4dp"
                 android:maxLines="2"
                 android:textColor="@color/white"
                 android:textSize="15dp"/>
@@ -87,21 +86,21 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:maxLines="2"
                 android:lineSpacingExtra="4dp"
+                android:maxLines="2"
                 android:textColor="@color/white"
                 android:textSize="15dp"/>
 
             <com.fast.access.kam.widget.FontTextView
                 android:id="@+id/lastUpdate"
                 android:layout_width="0dp"
-                android:lineSpacingExtra="4dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:lineSpacingExtra="4dp"
                 android:maxLines="2"
                 android:textColor="@color/white"
                 android:textSize="15dp"/>

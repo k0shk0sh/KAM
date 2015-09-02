@@ -119,10 +119,31 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         productsList.addAll(Arrays.asList(getResources().getStringArray(R.array.in_app_billing)));
         mHelper = new IabHelper(this, getString(R.string.base64));
         mHelper.startSetup(mPurchaseFinishedListener);
+        showWhatsNew();
     }
 
     private void onSuccessPaid() {
         mHelper.queryInventoryAsync(true, productsList, mReceivedInventoryListener);
+    }
+
+    private void showWhatsNew() {
+        if (!AppHelper.hasSeenWhatsNew(this)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Whats New")
+                    .setMessage(getString(R.string.whats_new))
+                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AppHelper.setHasSeenWhatsNew(Home.this);
+                        }
+                    })
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            AppHelper.setHasSeenWhatsNew(Home.this);
+                        }
+                    }).show();
+        }
     }
 
     @Override
@@ -149,7 +170,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(this);
     }
-
 
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -322,16 +342,30 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         if (selectedApps.size() != 0) {
             if (actionMode == null) {
                 actionMode = toolbar.startActionMode(this);
+                AppHelper.actionModeColor(this);
             }
-            actionMode.setTitle("Backup ( " + selectedApps.size() + " Apps )");
-            navigationView.getMenu().findItem(R.id.restore).setEnabled(false);
-            navigationView.getMenu().findItem(R.id.restore).setTitle("Restore (Disabled)");
+            if (selectedApps.size() > 1) {
+                actionMode.setTitle("Backup ( " + selectedApps.size() + " Apps )");
+            } else {
+                actionMode.setTitle("Backup ( " + selectedApps.size() + " App )");
+            }
+            enableDisableMenuItem(false);
         } else {
             actionMode.finish();
             actionMode = null;
-            navigationView.getMenu().findItem(R.id.restore).setEnabled(true);
-            navigationView.getMenu().findItem(R.id.restore).setTitle("Restore");
         }
+    }
+
+    private void enableDisableMenuItem(boolean enable) {
+        if (enable) {
+            navigationView.getMenu().findItem(R.id.restore).setTitle("Restore");
+            navigationView.getMenu().findItem(R.id.backup).setTitle("Backup");
+        } else {
+            navigationView.getMenu().findItem(R.id.restore).setTitle("Restore (Disabled)");
+            navigationView.getMenu().findItem(R.id.backup).setTitle("Backup (Disabled)");
+        }
+        navigationView.getMenu().findItem(R.id.restore).setEnabled(enable);
+        navigationView.getMenu().findItem(R.id.backup).setEnabled(enable);
     }
 
     @Override
@@ -369,7 +403,6 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         actionMode = null;
         selectedApps.clear();
         adapter.clearSelection();
-        navigationView.getMenu().findItem(R.id.restore).setEnabled(true);
-        navigationView.getMenu().findItem(R.id.restore).setTitle("Restore");
+        enableDisableMenuItem(true);
     }
 }

@@ -1,6 +1,5 @@
 package com.fast.access.kam.global.adapter;
 
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
@@ -13,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.fast.access.kam.R;
+import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppsModel;
 import com.fast.access.kam.widget.impl.OnItemClickListener;
 
@@ -63,12 +63,14 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         final AppsHolder h = (AppsHolder) holder;
         AppsModel app = modelList.get(position);
         if (app != null) {
+            h.iconHolder.setBackground(AppHelper.selector(AppHelper.getAccentColor(h.itemView.getContext())));
             if (isItemChecked(position)) {
-                h.iconHolder.setBackgroundColor(Color.parseColor("#50448AFF"));
+                h.iconHolder.setActivated(true);
             } else {
-                h.iconHolder.setBackgroundColor(Color.TRANSPARENT);
+                h.iconHolder.setActivated(false);
             }
             h.appIcon.setImageDrawable(new BitmapDrawable(h.iconHolder.getResources(), app.getBitmap()));
+            h.appIcon.setContentDescription(app.getAppName());
             h.iconHolder.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -162,9 +164,11 @@ public class AppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         @Bind(R.id.iconHolder)
         FrameLayout iconHolder;
 
+
         AppsHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
         }
     }
+
 }

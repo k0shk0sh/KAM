@@ -64,6 +64,8 @@ public class AppDetailsActivity extends BaseActivity {
     ImageButton extract;
     @Bind(R.id.share)
     ImageButton share;
+    @Bind(R.id.back)
+    ImageButton back;
     private AppsModel appsModel;
     private final int APP_RESULT = 1001;
     private LinearLayoutManager manager;
@@ -104,6 +106,11 @@ public class AppDetailsActivity extends BaseActivity {
         intent.setData(Uri.parse("package:" + appsModel.getPackageName()));
         intent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
         startActivityForResult(intent, APP_RESULT);
+        fabtoolbar.slideOutFab();
+    }
+
+    @OnClick(R.id.back)
+    public void onBack() {
         fabtoolbar.slideOutFab();
     }
 
@@ -167,6 +174,10 @@ public class AppDetailsActivity extends BaseActivity {
         } else {
             finish();
         }
+//        back.setBackground(AppHelper.selector(AppHelper.getPrimaryColor(this)));
+//        share.setBackground(AppHelper.selector(AppHelper.getPrimaryColor(this)));
+//        delete.setBackground(AppHelper.selector(AppHelper.getPrimaryColor(this)));
+//        extract.setBackground(AppHelper.selector(AppHelper.getPrimaryColor(this)));
         fabtoolbar.setFab(fab);
         fabtoolbar.setColor(AppHelper.getAccentColor(this));
         fab.setBackgroundTintList(ColorStateList.valueOf(AppHelper.getAccentColor(this)));

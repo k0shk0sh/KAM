@@ -12,8 +12,9 @@ import com.fast.access.kam.global.model.ProgressModel;
 import com.fast.access.kam.global.task.impl.OnTaskLoading;
 
 import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.util.List;
@@ -59,25 +60,39 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
     protected ProgressModel doInBackground(Context... params) {
         try {
             FileUtil fileUtil = new FileUtil();
-            File zipFile = new File(fileUtil.getBaseFolderName() + "backup.zip");
             boolean withData = AppHelper.isRestoreData(params[0]);
             if (withData) RootManager.getInstance().obtainPermission();
+            File zipFile = new File(fileUtil.getBaseFolderName() + "backup.zip");
+            if (!zipFile.exists()) {
+//                if (withData) {
+//                    withData();
+//                }
+                return error("Backup Folder Doe Not Exits!");
+            }
             zFile = new ZipFile(zipFile);
             List fileHeaderList = zFile.getFileHeaders();
             ProgressModel progressModel = new ProgressModel();
             progressModel.setMax(fileHeaderList.size());
             publishProgress(progressModel);
             for (int i = 0; i < fileHeaderList.size(); i++) {
+                if (isCancelled()) {
+                    return error("cancelled");
+                }
                 FileHeader fileHeader = (FileHeader) fileHeaderList.get(i);
                 zFile.extractFile(fileHeader, fileUtil.getBaseFolderName());
                 progressModel = new ProgressModel();
                 if (AppHelper.isRoot()) {
-                    Result result = AppHelper.installApkSilently(fileUtil.getBaseFolderName() + fileHeader.getFileName());
+                    Result result = AppHelper.installApkSilently(new File(fileUtil.getBaseFolderName() + fileHeader.getFileName()).getPath());
                     if (result != null && result.getStatusCode() == Result.ResultEnum.INSTALL_SUCCESS.getStatusCode()) {
                         boolean deleteApk = new File(fileUtil.getBaseFolderName() + fileHeader.getFileName()).delete();
                         Log.e("Result", result.getMessage() + " deleteApk: " + Boolean.toString(deleteApk));
+                    } else {
+                        if (result != null) {
+                            Log.e("Result Error", result.getMessage() + " " + result.getStatusCode());
+                        }
                     }
                 } else {
+                    // install manually via intent.
                     progressModel.setFilePath(fileUtil.getBaseFolderName() + fileHeader.getFileName());
                 }
                 progressModel.setProgress(i);
@@ -85,19 +100,23 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
                 publishProgress(progressModel);
             }
             zipFile.delete();
-            if (withData) {
-                withData();
-            }
+//            if (withData) {
+//                withData();
+//            }
         } catch (Exception e) {
             e.printStackTrace();
-            ProgressModel error = new ProgressModel();
-            error.setMsg(e.getMessage());
-            return error;
+            return error(e.getMessage());
         }
         return null;
     }
 
-    private void withData() throws ZipException {
+    private ProgressModel error(String msg) {
+        ProgressModel error = new ProgressModel();
+        error.setMsg(msg);
+        return error;
+    }
+
+    private void withData() throws Exception {
         FileUtil fileUtil = new FileUtil();
         File dataFile = new File(fileUtil.getBaseFolderName() + "data.zip");
         dataZip = new ZipFile(dataFile);
@@ -106,21 +125,19 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
             ProgressModel progressModel = new ProgressModel();
             progressModel.setMax(fileHeaderList.size());
             publishProgress(progressModel);
-            for (int i = 0; i < fileHeaderList.size(); i++) {
-                FileHeader header = (FileHeader) fileHeaderList.get(i);
-                if (header != null) {
-                    RootManager.getInstance().remount("/data/data/", "rw");
-                    Result result = RootManager.getInstance().runCommand(" mount -o rw,remount -t yaffs2 /data/data\nmkdir " + "/data/data/" + header
-                            .getFileName() + "\ncp -r " + header.getFileName() + " " + "/data/data/");
-                    Log.e("Result", result.getMessage() + " " + result.getStatusCode() + "  " + result.getResult());
-                    progressModel.setProgress(i);
-                    progressModel.setFileName(header.getFileName());
-                    publishProgress(progressModel);
-                }
+            List<FileHeader> headers = dataZip.getFileHeaders();
+            for (FileHeader header : headers) {
+                dataZip.extractFile(header, fileUtil.getBaseFolderName());
+                copyFileToData(fileUtil.getBaseFolderName(), header.getFileName());
             }
-            RootManager.getInstance().remount("/data/data/", "ro");
-            dataFile.delete();
         }
+        FileUtils.forceDelete(dataFile);
+    }
+
+    private void copyFileToData(String base, String file) throws Exception {
+        RootManager.getInstance().copyFile(base + File.separator + file, " /data/data/" + file);
+        FileUtils.forceDelete(new File(base + File.separator + file));
+//        Log.e("Result", result.getMessage() + "  " + result.getStatusCode());
     }
 
     public void onStop() {
@@ -137,3 +154,4 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
         cancel(true);
     }
 }
+

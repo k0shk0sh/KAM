@@ -1,3 +1,6 @@
+/art/512x512.png
+/art/320x180.png
+/art/180x120.png
 /.gradle
 /.idea
 /.git
@@ -8,5 +11,5 @@
 /app/fabric.properties
 /kamKey.jks
 /app/src/main/res/values/in_app_billing.xml
+/art/Screener
 /art/large_kam.psd
-/

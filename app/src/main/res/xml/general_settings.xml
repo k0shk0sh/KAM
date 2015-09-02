@@ -34,22 +34,22 @@
             android:widgetLayout="@layout/preference_dynamiccheckbox"/>
     </com.fast.access.kam.widget.CustomPrefCategory>
     <com.fast.access.kam.widget.CustomPrefCategory android:title="Backup &amp; Restore">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="backup_data"
-            android:layout="@layout/custom_settings"
-            android:persistent="true"
-            android:summary="Enable Data Backup (Only applies for root users)"
-            android:title="Backup Data"
-            android:widgetLayout="@layout/preference_dynamiccheckbox"/>
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="restore_data"
-            android:layout="@layout/custom_settings"
-            android:persistent="true"
-            android:summary="Enable Data Restore (Only applies for root users)"
-            android:title="Restore Data"
-            android:widgetLayout="@layout/preference_dynamiccheckbox"/>
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="false"-->
+        <!--android:key="backup_data"-->
+        <!--android:layout="@layout/custom_settings"-->
+        <!--android:persistent="true"-->
+        <!--android:summary="Enable Data Backup (Only applies for root users)"-->
+        <!--android:title="Backup Data"-->
+        <!--android:widgetLayout="@layout/preference_dynamiccheckbox"/>-->
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="false"-->
+        <!--android:key="restore_data"-->
+        <!--android:layout="@layout/custom_settings"-->
+        <!--android:persistent="true"-->
+        <!--android:summary="Enable Data Restore (Only applies for root users)"-->
+        <!--android:title="Restore Data"-->
+        <!--android:widgetLayout="@layout/preference_dynamiccheckbox"/>-->
     </com.fast.access.kam.widget.CustomPrefCategory>
     <com.fast.access.kam.widget.CustomPrefCategory android:title="About">
         <Preference

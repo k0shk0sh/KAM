@@ -1,12 +1,12 @@
 package com.fast.access.kam.fragments;
 
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.format.Formatter;
-import android.widget.Toast;
 
 import com.fast.access.kam.AppController;
 import com.fast.access.kam.BuildConfig;
@@ -29,6 +29,7 @@ import java.io.IOException;
  */
 public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener, ColorSelector {
     private File file;
+    private Preference fileSize;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,30 +38,61 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("version").setSummary(BuildConfig.VERSION_NAME);
         FileUtil fileUtil = new FileUtil();
         file = new File(fileUtil.getBaseFolderName());
-        long folderSize = AppHelper.getFolderSize(file);
-        findPreference("size").setSummary("File Location: " + file.getAbsolutePath() + "\nFile Size: " + Formatter.formatFileSize(getActivity(),
-                folderSize));
-        findPreference("size").setOnPreferenceClickListener(this);
+        fileSize = findPreference("size");
+        fileSize.setOnPreferenceClickListener(this);
         findPreference("libraries").setOnPreferenceClickListener(this);
         getPreferenceManager().findPreference("dark_theme").setOnPreferenceClickListener(this);
         ColorPreference primary = (ColorPreference) getPreferenceManager().findPreference("primary_color");
         ColorPreference accent = (ColorPreference) getPreferenceManager().findPreference("accent_color");
         primary.onColorSelect(this);
         accent.onColorSelect(this);
+        calculateFolderSize(false);
+    }
+
+    private void calculateFolderSize(final boolean deleteDir) {
+        new AsyncTask<Long, Long, Long>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                fileSize.setSummary("Calculating...");
+            }
+
+            @Override
+            protected void onPostExecute(Long aLong) {
+                super.onPostExecute(aLong);
+                fileSize.setSummary("File Location: " + file.getAbsolutePath() + "\nFile Size: " + Formatter.formatFileSize(getActivity(), aLong));
+            }
+
+            @Override
+            protected Long doInBackground(Long... params) {
+                if (deleteDir) {
+                    try {
+                        FileUtils.forceDelete(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return AppHelper.getFolderSize(file);
+            }
+        }.execute();
     }
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
         switch (preference.getKey()) {
             case "libraries":
-                new LibsBuilder()
+                LibsBuilder libsBuilder = new LibsBuilder()
                         .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
                         .withActivityTitle(getString(R.string.open_source_libraries))
                         .withAboutIconShown(true)
                         .withAboutVersionShown(true)
-                        .withAnimations(true)
-                        .withActivityTheme(R.style.AboutActivity)
-                        .start(getActivity());
+                        .withAnimations(true);
+                if (!AppHelper.isDarkTheme(getActivity())) {
+                    libsBuilder.withActivityTheme(R.style.AboutActivity);
+                } else {
+                    libsBuilder.withActivityTheme(R.style.AboutActivityDark);
+                }
+                libsBuilder.start(getActivity());
                 return true;
             case "dark_theme":
                 post();
@@ -73,17 +105,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    FileUtils.deleteDirectory(file);
-                                    Toast.makeText(getActivity(), "Folder Deleted Successfully", Toast.LENGTH_LONG).show();
-                                    long folderSize = AppHelper.getFolderSize(file);
-                                    findPreference("size").setSummary("File Location: " + file.getAbsolutePath() + "\nFile Size: " + Formatter
-                                            .formatFileSize(getActivity(),
-                                            folderSize));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(getActivity(), "Failed Deleting " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                }
+                                calculateFolderSize(true);
                             }
                         }).setNegativeButton("Nah!", null)
                         .show();
@@ -98,9 +120,6 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         getActivity().recreate();
     }
 
-    /**
-     * tell home to recreate to reflect new theme.
-     */
     private void post() {
         EventsModel eventsModel = new EventsModel();
         eventsModel.setEventType(EventsModel.EventType.THEME);

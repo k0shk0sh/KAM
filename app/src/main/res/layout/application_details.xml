@@ -43,32 +43,48 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="right"
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/delete"
+                android:id="@+id/back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="?selectableItemBackground"
-                android:padding="10dp"
-                android:src="@drawable/ic_delete"/>
+                android:padding="15dp"
+                android:src="@drawable/ic_back"/>
 
-            <ImageButton
-                android:id="@+id/extract"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
-                android:padding="10dp"
-                android:src="@drawable/ic_extract"/>
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/share"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?selectableItemBackground"
-                android:padding="10dp"
-                android:src="@drawable/ic_share"/>
+                <ImageButton
+                    android:id="@+id/delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:padding="15dp"
+                    android:src="@drawable/ic_delete"/>
+
+                <ImageButton
+                    android:id="@+id/extract"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:padding="15dp"
+                    android:src="@drawable/ic_extract"/>
+
+                <ImageButton
+                    android:id="@+id/share"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:padding="15dp"
+                    android:src="@drawable/ic_share"/>
+            </LinearLayout>
 
         </LinearLayout>
 

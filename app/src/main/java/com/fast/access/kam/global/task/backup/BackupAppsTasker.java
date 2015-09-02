@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.os.AsyncTask;
 
 import com.chrisplus.rootmanager.RootManager;
-import com.chrisplus.rootmanager.container.Result;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.helper.FileUtil;
 import com.fast.access.kam.global.loader.AppListCreator;
@@ -84,12 +83,6 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
             FileUtil fileUtil = new FileUtil();
             File zipFileName = new File(fileUtil.getBaseFolderName() + "backup.zip");
             File zipFileData = new File(fileUtil.getBaseFolderName() + "data.zip");
-            if (zipFileData.exists()) {
-                FileUtils.forceDelete(zipFileData);
-            }
-            if (zipFileName.exists()) {
-                FileUtils.forceDelete(zipFileName);
-            }
             zipFile = new ZipFile(zipFileName);
             zipData = new ZipFile(zipFileData);
             if (!zipData.isValidZipFile()) {
@@ -104,6 +97,9 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
             boolean withData = AppHelper.isBackupData(context);
             if (withData) RootManager.getInstance().obtainPermission();
             for (AppsModel model : appsModelList) {
+                if (isCancelled()) {
+                    return onError("cancelled");
+                }
                 if (model != null) {
                     ApplicationInfo packageInfo = context.getPackageManager().getApplicationInfo(model.getPackageName(), 0);
                     File file = new File(packageInfo.sourceDir);
@@ -118,15 +114,26 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
                         parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
                         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
                         parameters.setSourceExternalStream(true);
-                        parameters.setFileNameInZip(fileToSave.getName());
+                        parameters.setFileNameInZip(fileToSave.getName().replaceAll(" ", ""));
                         zipFile.addFile(file, parameters);
                         progressModel = new ProgressModel();
                         progressModel.setProgress(count);
                         progressModel.setFileName(fileToSave.getName());
                         publishProgress(progressModel);
-                        if (withData) {
-                            withData(model, packageInfo, file, fileUtil, count);
-                        }
+//                        if (withData) {
+//                            withData(model, packageInfo, file, fileUtil, count);
+//                            Result r = RootManager.getInstance().runCommand("ls -ld " + packageInfo.dataDir);
+//                            if (r.getMessage() != null) {
+//                                String[] p = r.getMessage().split("\\s+");
+//                                if (p.length == 6) {
+////                              String permissions, String owner, String group, String date, String fileName
+//                                } else if (p.length == 7) {
+////                              String permissions, String owner, String group, String size, String date, String fileName
+//                                }
+//                            }
+//                            Log.e("TAG", r.getMessage() + " " + r.getResult());
+//
+//                        }
                     }
                 }
             }
@@ -138,24 +145,21 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
         return null;
     }
 
+
     private void withData(AppsModel model, ApplicationInfo packageInfo, File file, FileUtil fileUtil, int count) throws Exception {
         File dataFolder = new File(packageInfo.dataDir);
         File dataFile = new File(fileUtil.getBaseFolderName() + model.getPackageName());
-        Result result = RootManager.getInstance().runCommand("cp -r " + dataFolder + " " + fileUtil.getBaseFolderName() + "\n");
-        ProgressModel progressModel = new ProgressModel();
-        progressModel.setProgress(count);
-        progressModel.setFileName(model.getAppName());
-        publishProgress(progressModel);
+        boolean z = RootManager.getInstance().copyFile(dataFolder.getPath(), fileUtil.getBaseFolderName());
         ZipParameters parameters = new ZipParameters();
         parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
         parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_FASTEST);
-        if (result.getStatusCode() == 0 || result.getStatusCode() == 90) {
+        if (z) {
             if (dataFile.exists()) {
                 zipData.addFolder(dataFile, parameters);
                 FileUtils.deleteDirectory(dataFile);
             }
         }
-        progressModel = new ProgressModel();
+        ProgressModel progressModel = new ProgressModel();
         progressModel.setProgress(count);
         progressModel.setFileName(model.getAppName());
         publishProgress(progressModel);
@@ -169,6 +173,7 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
     }
 
     public void onStop() {
+        cancel(true);
         if (zipFile != null) {
             if (zipFile.getProgressMonitor() != null) {
                 zipFile.getProgressMonitor().cancelAllTasks();
@@ -177,12 +182,12 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
             }
         }
         if (zipData != null) {
+            RootManager.getInstance().runCommand("\nexit\n");
             if (zipData.getProgressMonitor() != null) {
                 zipData.getProgressMonitor().cancelAllTasks();
                 if (zipData.getFile() != null && zipData.getFile().exists())
                     zipData.getFile().delete();
             }
         }
-        cancel(true);
     }
 }

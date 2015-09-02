@@ -6,13 +6,14 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:layout_margin="10dp"
-    android:foreground="?selectableItemBackground">
+    android:foreground="?selectableItemBackground"
+    android:padding="10dp">
 
     <ImageView
         android:id="@+id/appIcon"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="@dimen/app_icon"
-        android:layout_height="@dimen/app_icon"
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
         android:layout_gravity="center"
-        android:transitionName="@string/app_icon_transition"/>
+        android:contentDescription="@string/app_name"/>
 </FrameLayout>

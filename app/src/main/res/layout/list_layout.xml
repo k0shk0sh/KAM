@@ -20,7 +20,6 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/ThemeOverlay.AppCompat"
             app:theme="@style/ToolbarStyle"/>
-
     </android.support.design.widget.AppBarLayout>
 
     <FrameLayout

@@ -1,5 +1,6 @@
 package com.fast.access.kam.global.helper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,16 +10,20 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import com.chrisplus.rootmanager.RootManager;
 import com.chrisplus.rootmanager.container.Result;
+import com.fast.access.kam.BuildConfig;
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.model.AppsModel;
 
@@ -204,6 +209,35 @@ public class AppHelper {
 
     public static String extension(String file) {
         return MimeTypeMap.getFileExtensionFromUrl(file);
+    }
+
+    private static Drawable getColorDrawable(int colorCode) {
+        return new ColorDrawable(colorCode);
+    }
+
+    public static StateListDrawable selector(int color) {
+        StateListDrawable drawable = new StateListDrawable();
+        drawable.addState(new int[]{android.R.attr.state_pressed}, getColorDrawable(color));
+        drawable.addState(new int[]{android.R.attr.state_focused}, getColorDrawable(color));
+        drawable.addState(new int[]{android.R.attr.state_selected}, getColorDrawable(color));
+        drawable.addState(new int[]{android.R.attr.state_activated}, getColorDrawable(color));
+        return drawable;
+    }
+
+    public static void setHasSeenWhatsNew(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("version_code", BuildConfig.VERSION_CODE).apply();
+    }
+
+    public static boolean hasSeenWhatsNew(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getInt("version_code", 0) == BuildConfig.VERSION_CODE;
+    }
+
+    public static void actionModeColor(Context context) {
+        try {
+            int amId = context.getResources().getIdentifier("action_context_bar", "id", "android");
+            View view = ((Activity) context).findViewById(amId);
+            view.setBackgroundColor(getPrimaryColor(context));
+        } catch (Exception ignored) {}
     }
 
 }
