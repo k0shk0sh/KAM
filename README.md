@@ -1,4 +1,4 @@
-<h1 style="color:#3F51B5;">KAM v1.0</h1>
+<h1 style="color:#3F51B5;">KAM v1.1</h1>
 <p align="center">
   <img src="https://github.com/k0shk0sh/KAM/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="KAM" />
 </p>
