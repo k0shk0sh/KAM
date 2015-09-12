@@ -1,5 +1,6 @@
 package com.fast.access.kam.fragments;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;

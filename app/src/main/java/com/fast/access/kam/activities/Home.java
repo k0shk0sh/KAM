@@ -1,17 +1,22 @@
 package com.fast.access.kam.activities;
 
+import android.Manifest;
 import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -80,6 +85,10 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     private List<String> productsList = new ArrayList<>();
     private ActionMode actionMode;
     private HashMap<Integer, AppsModel> selectedApps = new LinkedHashMap<>();
+    public static final int REQUEST_STORAGE = 1;
+
+    private static String[] EXTERNAL_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     @Override
     protected int layout() {
@@ -150,10 +159,14 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchView.setOnQueryTextListener(this);
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        if (searchItem != null) {
+            SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+            if (searchView != null) {
+                searchView.setOnQueryTextListener(this);
+                SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            }
+        }
         return true;
     }
 
@@ -212,8 +225,13 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                         .setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mHelper.launchPurchaseFlow(Home.this, productsList.get(which), 2001, onIabPurchaseFinishedListener, titles.get
-                                        (which));
+                                try {
+                                    mHelper.launchPurchaseFlow(Home.this, productsList.get(which), 2001, onIabPurchaseFinishedListener, titles.get
+                                            (which));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Snackbar.make(mainContent, "Oops, Something went wrong", Snackbar.LENGTH_LONG).show();
+                                }
                             }
                         }).setNegativeButton("Cancel", null).show();
 
@@ -231,9 +249,11 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     }
 
     private void startOperation(OperationType type) {
-        Intent intent = new Intent(this, ExecutorService.class);
-        intent.putExtra("operationType", type.name());
-        startService(intent);
+        if (!doNeedPermission()) {
+            Intent intent = new Intent(this, ExecutorService.class);
+            intent.putExtra("operationType", type.name());
+            startService(intent);
+        }
     }
 
     public void onEvent(final EventsModel eventsModel) {
@@ -386,13 +406,15 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         if (item.getItemId() == R.id.backupAction) {
-            Intent intent = new Intent(this, ExecutorService.class);
-            intent.putExtra("operationType", OperationType.SELECTED_APPS.name());
-            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
-            Log.e(TAG, gson.toJson(selectedApps.values()));
-            intent.putExtra("apps", gson.toJson(selectedApps.values()));
-            startService(intent);
-            actionMode.finish();
+            if (!doNeedPermission()) {
+                Intent intent = new Intent(this, ExecutorService.class);
+                intent.putExtra("operationType", OperationType.SELECTED_APPS.name());
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
+                Log.e(TAG, gson.toJson(selectedApps.values()));
+                intent.putExtra("apps", gson.toJson(selectedApps.values()));
+                startService(intent);
+                actionMode.finish();
+            }
             return true;
         }
         return false;
@@ -405,4 +427,58 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         adapter.clearSelection();
         enableDisableMenuItem(true);
     }
+
+    private boolean doNeedPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermission();
+            return true;
+        }
+        return false;
+    }
+
+    private void requestPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            Snackbar.make(mainContent, "Permission is required to continue using this " +
+                    "function!", Snackbar.LENGTH_INDEFINITE).setAction("Okay", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ActivityCompat.requestPermissions(Home.this, EXTERNAL_STORAGE, REQUEST_STORAGE);
+                }
+            }).show();
+        } else {
+            ActivityCompat.requestPermissions(this, EXTERNAL_STORAGE, REQUEST_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_STORAGE) {
+            if (verifyPermissions(grantResults)) {
+                Snackbar.make(findViewById(R.id.toolbar), "Permission Granted, you may continue using" +
+                        " this function now.", Snackbar.LENGTH_LONG).show();
+            } else {
+                Snackbar.make(findViewById(R.id.toolbar), "Permission Denied, you may not be able to " +
+                        "use this functionality", Snackbar.LENGTH_LONG).show();
+            }
+
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    public static boolean verifyPermissions(int[] grantResults) {
+        if (grantResults.length < 1) {
+            return false;
+        }
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

@@ -96,10 +96,10 @@ public class AppHelper {
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
             return Arrays.asList(info.requestedPermissions);
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            return new ArrayList<>();
         }
+        return new ArrayList<>();
     }
 
     public static void installApk(Context context, File filename) {
