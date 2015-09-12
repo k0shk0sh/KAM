@@ -27,6 +27,8 @@ import com.fast.access.kam.BuildConfig;
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.model.AppsModel;
 
+import net.lingala.zip4j.core.ZipFile;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -238,6 +240,19 @@ public class AppHelper {
             View view = ((Activity) context).findViewById(amId);
             view.setBackgroundColor(getPrimaryColor(context));
         } catch (Exception ignored) {}
+    }
+
+
+    public static int getRestoreApksCount() {
+        try {
+            FileUtil fileUtil = new FileUtil();
+            File zipFileName = new File(fileUtil.getBaseFolderName() + "backup.zip");
+            ZipFile zipFile = new ZipFile(zipFileName);
+            return zipFile.getFileHeaders().size();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 }

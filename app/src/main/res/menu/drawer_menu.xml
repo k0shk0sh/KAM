@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
-    <group android:checkableBehavior="single">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="none">
         <item
             android:id="@+id/backup"
             android:icon="@drawable/ic_backup"
-            android:title="Backup"/>
+            android:title="@string/backup_title"/>
         <item
             android:id="@+id/restore"
             android:icon="@drawable/ic_restore"
-            android:title="Restore"/>
+            android:title="@string/restore_title"/>
     </group>
     <item
         android:icon="@drawable/ic_backup"

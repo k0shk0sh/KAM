@@ -1,6 +1,5 @@
 package com.fast.access.kam.fragments;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -102,7 +101,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             case "size":
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Delete Folder?")
-                        .setMessage("After deleting this file you won't be able to restore any app")
+                        .setMessage("The Backup File will be deleted!\nAre you sure?")
                         .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

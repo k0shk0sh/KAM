@@ -129,6 +129,20 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
         mHelper = new IabHelper(this, getString(R.string.base64));
         mHelper.startSetup(mPurchaseFinishedListener);
         showWhatsNew();
+        countBackup();
+    }
+
+    private void countBackup() {
+        if (navigationView.getMenu() != null) {
+            if (navigationView.getMenu().findItem(R.id.restore) != null) {
+                int count = AppHelper.getRestoreApksCount();
+                if (count != 0) {
+                    navigationView.getMenu().findItem(R.id.restore).setTitle(getString(R.string.restore_title) + " ( " + count + " )");
+                } else {
+                    navigationView.getMenu().findItem(R.id.restore).setTitle(getString(R.string.restore_title));
+                }
+            }
+        }
     }
 
     private void onSuccessPaid() {
@@ -265,6 +279,9 @@ public class Home extends BaseActivity implements SearchView.OnQueryTextListener
                         switch (eventsModel.getEventType()) {
                             case THEME:
                                 recreate();
+                                break;
+                            case FOLDER_LISTENER:
+                                countBackup();
                                 break;
                         }
                     }

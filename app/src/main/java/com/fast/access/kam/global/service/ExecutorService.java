@@ -12,9 +12,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 import android.widget.Toast;
 
+import com.fast.access.kam.AppController;
 import com.fast.access.kam.R;
 import com.fast.access.kam.global.helper.AppHelper;
 import com.fast.access.kam.global.model.AppsModel;
+import com.fast.access.kam.global.model.EventsModel;
 import com.fast.access.kam.global.model.ProgressModel;
 import com.fast.access.kam.global.model.helper.OperationType;
 import com.fast.access.kam.global.task.backup.BackupAppsTasker;
@@ -103,6 +105,9 @@ public class ExecutorService extends Service implements OnTaskLoading {
     @Override
     public void onPostExecute(boolean isBackup) {
         generateNotification(isBackup);
+        EventsModel eventsModel = new EventsModel();
+        eventsModel.setEventType(EventsModel.EventType.FOLDER_LISTENER);
+        AppController.getController().getBus().post(eventsModel);
         stopSelf();
     }
 

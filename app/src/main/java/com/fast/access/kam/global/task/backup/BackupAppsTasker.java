@@ -120,20 +120,6 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
                         progressModel.setProgress(count);
                         progressModel.setFileName(fileToSave.getName());
                         publishProgress(progressModel);
-//                        if (withData) {
-//                            withData(model, packageInfo, file, fileUtil, count);
-//                            Result r = RootManager.getInstance().runCommand("ls -ld " + packageInfo.dataDir);
-//                            if (r.getMessage() != null) {
-//                                String[] p = r.getMessage().split("\\s+");
-//                                if (p.length == 6) {
-////                              String permissions, String owner, String group, String date, String fileName
-//                                } else if (p.length == 7) {
-////                              String permissions, String owner, String group, String size, String date, String fileName
-//                                }
-//                            }
-//                            Log.e("TAG", r.getMessage() + " " + r.getResult());
-//
-//                        }
                     }
                 }
             }
@@ -144,7 +130,6 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
 
         return null;
     }
-
 
     private void withData(AppsModel model, ApplicationInfo packageInfo, File file, FileUtil fileUtil, int count) throws Exception {
         File dataFolder = new File(packageInfo.dataDir);
@@ -165,7 +150,6 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
         publishProgress(progressModel);
     }
 
-
     private ProgressModel onError(String msg) {
         ProgressModel error = new ProgressModel();
         error.setMsg(msg);
@@ -182,7 +166,6 @@ public class BackupAppsTasker extends AsyncTask<Void, ProgressModel, ProgressMod
             }
         }
         if (zipData != null) {
-            RootManager.getInstance().runCommand("\nexit\n");
             if (zipData.getProgressMonitor() != null) {
                 zipData.getProgressMonitor().cancelAllTasks();
                 if (zipData.getFile() != null && zipData.getFile().exists())

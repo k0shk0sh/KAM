@@ -2,7 +2,6 @@ package com.fast.access.kam.global.task.restore;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.chrisplus.rootmanager.RootManager;
 import com.chrisplus.rootmanager.container.Result;
@@ -81,28 +80,19 @@ public class RestoreAppsTasker extends AsyncTask<Context, ProgressModel, Progres
                 FileHeader fileHeader = (FileHeader) fileHeaderList.get(i);
                 zFile.extractFile(fileHeader, fileUtil.getBaseFolderName());
                 progressModel = new ProgressModel();
+                progressModel.setProgress(i);
+                progressModel.setFileName(fileHeader.getFileName());
+                publishProgress(progressModel);
                 if (AppHelper.isRoot()) {
                     Result result = AppHelper.installApkSilently(new File(fileUtil.getBaseFolderName() + fileHeader.getFileName()).getPath());
                     if (result != null && result.getStatusCode() == Result.ResultEnum.INSTALL_SUCCESS.getStatusCode()) {
                         boolean deleteApk = new File(fileUtil.getBaseFolderName() + fileHeader.getFileName()).delete();
-                        Log.e("Result", result.getMessage() + " deleteApk: " + Boolean.toString(deleteApk));
-                    } else {
-                        if (result != null) {
-                            Log.e("Result Error", result.getMessage() + " " + result.getStatusCode());
-                        }
                     }
                 } else {
-                    // install manually via intent.
                     progressModel.setFilePath(fileUtil.getBaseFolderName() + fileHeader.getFileName());
                 }
-                progressModel.setProgress(i);
-                progressModel.setFileName(fileHeader.getFileName());
-                publishProgress(progressModel);
             }
             zipFile.delete();
-//            if (withData) {
-//                withData();
-//            }
         } catch (Exception e) {
             e.printStackTrace();
             return error(e.getMessage());
