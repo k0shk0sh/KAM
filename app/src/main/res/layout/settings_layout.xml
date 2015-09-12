@@ -20,12 +20,6 @@
             android:background="?attr/colorPrimary"
             android:theme="@style/ToolbarStyle"
             app:popupTheme="@style/ThemeOverlay.AppCompat"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/transparent"
-            android:visibility="invisible"/>
     </android.support.design.widget.AppBarLayout>
 
     <FrameLayout

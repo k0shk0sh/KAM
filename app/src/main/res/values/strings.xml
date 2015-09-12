@@ -11,7 +11,7 @@
     <string name="open_source_libraries">Open Source Libraries</string>
     <string name="app_details">Application Details</string>
     <string name="the_team">The Team</string>
-    <string name="whats_new">1- Improved Caching, no more LAG!.\n2- LongPress any apps to backup.</string>
+    <string name="whats_new">1- KAM now supports Android M.\n2- Fixed Some Bugs.</string>
     <string name="backup_title">Backup</string>
     <string name="restore_title">Restore</string>
 </resources>
